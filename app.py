@@ -923,7 +923,7 @@ def plot_simplified_employee_morning_score(df):
             )
         
         # Configure chart appearance
-        ax.set_title(f'Top Employee Performance - {morning_shift}', fontsize=18, fontweight='bold')
+        ax.set_title(f'Top Employee Efficiency - {morning_shift}', fontsize=18, fontweight='bold')
         ax.set_xlabel('Total Score', fontsize=14, fontweight='bold')
         ax.set_ylabel('Employee', fontsize=14, fontweight='bold')
         
@@ -1050,7 +1050,7 @@ def plot_simplified_employee_evening_score(df):
             )
         
         # Configure chart appearance
-        ax.set_title(f'Top Employee Performance - {evening_shift}', fontsize=18, fontweight='bold')
+        ax.set_title(f'Top Employee Efficiency - {evening_shift}', fontsize=18, fontweight='bold')
         ax.set_xlabel('Total Score', fontsize=14, fontweight='bold')
         ax.set_ylabel('Employee', fontsize=14, fontweight='bold')
         
