@@ -1096,8 +1096,8 @@ try:
 
         ### How to Use
         1. **Data Upload**
+           - Download Square monthly sales data
            - Click the "Browse files" button to upload sales data CSV
-           - Required columns: `Date`, `Time`, `Gross Sales`, `Employee`
            - Data processing begins automatically after upload
 
         2. **Configure Shifts** (⚙️ Sidebar)
