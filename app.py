@@ -443,7 +443,7 @@ def plot_weekly_schedule_with_availability(df, availability):
         ax.set_yticklabels(schedule.index, rotation=0, fontsize=16, fontweight='bold')
         ax.xaxis.tick_top()
         ax.xaxis.set_label_position('top')
-        ax.set_title('AI Optimized Labor Schedule (Shift Performance)', pad=24, fontsize=22, fontweight='bold')
+        ax.set_title('AI Optimized Labor Schedule (Shift Efficiency)', pad=24, fontsize=22, fontweight='bold')
         plt.tight_layout()
         
         # Save figure for PDF export
@@ -1083,6 +1083,62 @@ try:
     st.title("📈 X-Golf Shift Optimization Dashboard")
     uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
 
+    # Add Instructions expander
+    with st.expander("📘 Instructions", expanded=False):
+        st.markdown("""
+        ### Overview
+        The X-Golf Shift Optimizer is a data-driven tool designed to create optimized employee schedules based on:
+        - Historical sales performance
+        - Employee availability
+        - Shift patterns
+        
+        **Key Benefit:** Places top-performing employees in the top-grossing shifts.
+
+        ### How to Use
+        1. **Data Upload**
+           - Click the "Browse files" button to upload sales data CSV
+           - Required columns: `Date`, `Time`, `Gross Sales`, `Employee`
+           - Data processing begins automatically after upload
+
+        2. **Configure Shifts** (⚙️ Sidebar)
+           - Default shifts:
+             - Morning Shift (9 AM - 4 PM)
+             - Evening Shift (4 PM - 12 AM)
+           - Customizable:
+             - Shift names
+             - Start/end times
+             - Staff requirements
+           - Add shifts with ➕ button
+
+        3. **Set Employee Availability** (⚙️ Sidebar)
+           - Per employee settings:
+             - Max shifts/week (1-7)
+             - Available shifts
+             - Available days
+
+        4. **Explore Visualizations**
+           - Sales patterns by hour & day
+           - Shift performance comparisons
+           - Employee efficieny rankings
+           - AI-optimized schedule
+
+        ### Performance Metrics
+        | Metric | Description | Importance |
+        |---|---|----|
+        | Total Sales | Overall revenue generated | Primary revenue indicator |
+        | Avg Sale/Transaction | Average transaction value | Upselling ability |
+        | Shift Count | Number of shifts worked | Experience indicator |
+        | Performance Score | Combined metrics score | Employee value |
+
+        ### Optimization Benefits
+        | Feature | Benefit | Impact |
+        |---|---|----|
+        | Shift-specific scheduling | Employees in best-performing shifts | 15-25% revenue potential |
+        | Data-driven assignments | Removes scheduling bias | Fairer process |
+        | Historical analysis | Optimal staffing levels | Cost reduction |
+        | Performance tracking | Identify top performers | Better development |
+        """)
+
     if uploaded_file:
         # Load and process data with caching
         df = load_and_process_data(uploaded_file)
@@ -1344,7 +1400,7 @@ try:
                 shift_count_fig = plot_employee_shift_type_count(df)
                 st.pyplot(shift_count_fig)              
 
-            with st.expander("🏆 Employee 1st Shift Performance - Ranked", expanded=False):
+            with st.expander("🏆 Employee 1st Shift Efficiency - Ranked", expanded=False):
                 morning_score_fig = plot_simplified_employee_morning_score(df)
                 if morning_score_fig:
                     st.pyplot(morning_score_fig)
@@ -1353,7 +1409,7 @@ try:
 
             # Add this code right after the morning shift performance section
 
-            with st.expander("🌃 Employee 2nd Shift Performance - Ranked", expanded=False):
+            with st.expander("🌃 Employee 2nd Shift Efficiency - Ranked", expanded=False):
                 evening_score_fig = plot_simplified_employee_evening_score(df)
                 if evening_score_fig:
                     st.pyplot(evening_score_fig)
