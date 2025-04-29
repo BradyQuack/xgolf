@@ -11,7 +11,7 @@ import io
 from matplotlib.backends.backend_pdf import PdfPages
 import traceback
 
-st.set_page_config(page_title="X-Golf Shift Optimizer", layout="wide")
+st.set_page_config(page_title="AI Shift Optimizer", layout="wide")
 
 # Initialize session state for shift configurations
 if 'shift_config' not in st.session_state:
@@ -1105,7 +1105,7 @@ def plot_simplified_employee_evening_score(df):
 
 # Main app
 try:
-    st.title("📈 X-Golf Shift Optimization Dashboard")
+    st.title("📈 AI Shift Optimization Dashboard")
     uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
 
     # Add Instructions expander
