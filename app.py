@@ -824,6 +824,7 @@ def plot_simplified_employee_morning_score(df):
     """
     Create a simplified scoring visualization for employees working the morning shift
     based on multiple efficiency metrics, showing only the total score.
+    Now with a slider to control the number of employees displayed.
     """
     try:
         # Assign shift type based on hour
@@ -897,11 +898,23 @@ def plot_simplified_employee_morning_score(df):
         scores['Total Score'] = scores.sum(axis=1)
         scores = scores.sort_values('Total Score', ascending=False)
         
+        # Add slider to control number of employees displayed
+        num_top_employees = st.slider(
+            "Number of employees to display",
+            min_value=1,
+            max_value=len(scores),
+            value=min(5, len(scores)),
+            key="morning_efficiency_slider"
+        )
+        
+        # Filter to top N employees based on slider
+        top_scores = scores.head(num_top_employees)
+        
         # Create horizontal bar chart for total scores only
         fig, ax = plt.subplots(figsize=(16, 10))
         
         # Plot horizontal bars for total score only
-        total_score = scores['Total Score'].sort_values(ascending=True)
+        total_score = top_scores['Total Score'].sort_values(ascending=True)
         bars = ax.barh(
             total_score.index, 
             total_score.values,
@@ -923,7 +936,7 @@ def plot_simplified_employee_morning_score(df):
             )
         
         # Configure chart appearance
-        ax.set_title(f'Top Employee Efficiency - {morning_shift}', fontsize=18, fontweight='bold')
+        ax.set_title(f'Top {num_top_employees} Employee Efficiency - {morning_shift}', fontsize=18, fontweight='bold')
         ax.set_xlabel('Efficiency Score', fontsize=14, fontweight='bold')
         ax.set_ylabel('')
         
@@ -951,6 +964,7 @@ def plot_simplified_employee_evening_score(df):
     """
     Create a simplified scoring visualization for employees working the evening shift
     based on multiple efficiency metrics, showing only the total score.
+    Now with a slider to control the number of employees displayed.
     """
     try:
         # Assign shift type based on hour
@@ -1024,11 +1038,23 @@ def plot_simplified_employee_evening_score(df):
         scores['Total Score'] = scores.sum(axis=1)
         scores = scores.sort_values('Total Score', ascending=False)
         
+        # Add slider to control number of employees displayed
+        num_top_employees = st.slider(
+            "Number of employees to display",
+            min_value=1,
+            max_value=len(scores),
+            value=min(5, len(scores)),
+            key="evening_efficiency_slider"
+        )
+        
+        # Filter to top N employees based on slider
+        top_scores = scores.head(num_top_employees)
+        
         # Create horizontal bar chart for total scores only
         fig, ax = plt.subplots(figsize=(16, 10))
         
         # Plot horizontal bars for total score only
-        total_score = scores['Total Score'].sort_values(ascending=True)
+        total_score = top_scores['Total Score'].sort_values(ascending=True)
         bars = ax.barh(
             total_score.index, 
             total_score.values,
@@ -1050,7 +1076,7 @@ def plot_simplified_employee_evening_score(df):
             )
         
         # Configure chart appearance
-        ax.set_title(f'Top Employee Efficiency - {evening_shift}', fontsize=18, fontweight='bold')
+        ax.set_title(f'Top {num_top_employees} Employee Efficiency - {evening_shift}', fontsize=18, fontweight='bold')
         ax.set_xlabel('Efficiency Score', fontsize=14, fontweight='bold')
         ax.set_ylabel('')
         
@@ -1073,7 +1099,6 @@ def plot_simplified_employee_evening_score(df):
                 ha='center', va='center', fontsize=14)
         ax.axis('off')
         return fig
-
 
 
 
