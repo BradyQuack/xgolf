@@ -274,7 +274,6 @@ def plot_weekly_schedule_with_availability(df, availability):
     - Shift sales (higher revenue shifts prioritized)
     - Ensures exactly required staff per shift
     - Prevents duplicate assignments
-    - NEW: Includes Average Sales per Shift rankings in efficiency scores
     """
     try:
         # Set up weekday order
@@ -297,28 +296,6 @@ def plot_weekly_schedule_with_availability(df, availability):
         
         # Calculate efficiency scores for evening shift using the same logic as plot_simplified_employee_evening_score
         evening_scores = calculate_shift_efficiency_scores(evening_data)
-        
-        # NEW: Calculate Average Sales per Shift by Employee
-        # First, get unique (employee, date) combinations to count actual shifts
-        unique_shifts = df.drop_duplicates(['employee', 'date'])
-        
-        # Count shifts per employee
-        shifts_worked = unique_shifts.groupby('employee').size()
-        
-        # Calculate total sales per employee
-        total_sales = df.groupby('employee')['gross_sales'].sum()
-        
-        # Calculate average sales per shift
-        avg_sales_per_shift = total_sales / shifts_worked
-        avg_sales_per_shift = avg_sales_per_shift.sort_values(ascending=False)
-        
-        # NEW: Create a scoring based on avg_sales_per_shift ranking
-        # (highest avg = max score, lowest = 1)
-        num_employees = len(avg_sales_per_shift)
-        avg_sales_per_shift_score = pd.Series(
-            range(num_employees, 0, -1),
-            index=avg_sales_per_shift.index
-        )
         
         # Process shift data - get CURRENT shift config
         current_shifts = list(st.session_state.shift_config.values())  # Get fresh shift list
@@ -351,13 +328,6 @@ def plot_weekly_schedule_with_availability(df, availability):
         
         # Initialize employee assignments and shift assignments
         employee_assignments = {}
-        
-        # Initialize with avg_sales_per_shift_score for all employees
-        for emp in avg_sales_per_shift_score.index:
-            if emp not in employee_assignments:
-                employee_assignments[emp] = []
-        
-        # Add morning and evening shift employees if they weren't in avg_sales_per_shift
         if morning_scores is not None:
             for emp in morning_scores.index:
                 if emp not in employee_assignments:
@@ -386,39 +356,16 @@ def plot_weekly_schedule_with_availability(df, availability):
             
             # Select the appropriate efficiency scores based on shift type
             if shift_name == morning_shift and morning_scores is not None:
-                shift_efficiency_scores = morning_scores
+                efficiency_scores = morning_scores
             elif shift_name == evening_shift and evening_scores is not None:
-                shift_efficiency_scores = evening_scores
+                efficiency_scores = evening_scores
             else:
                 # Fallback to overall sales if no specific shift scores available
-                shift_efficiency_scores = df.groupby('employee')['gross_sales'].sum().sort_values(ascending=False)
-            
-            # NEW: Combine shift-specific efficiency scores with avg_sales_per_shift scores
-            combined_scores = pd.DataFrame()
-            
-            # Add shift-specific efficiency scores where available
-            for emp in shift_efficiency_scores.index:
-                if emp not in combined_scores.index:
-                    combined_scores.loc[emp, 'Shift Score'] = shift_efficiency_scores.loc[emp]
-                else:
-                    combined_scores.loc[emp, 'Shift Score'] = shift_efficiency_scores.loc[emp]
-            
-            # Add avg_sales_per_shift scores
-            for emp in avg_sales_per_shift_score.index:
-                if emp in combined_scores.index:
-                    combined_scores.loc[emp, 'Avg Sales/Shift Score'] = avg_sales_per_shift_score.loc[emp]
-                else:
-                    combined_scores.loc[emp, 'Avg Sales/Shift Score'] = 0
-            
-            # Fill NaN values with 0
-            combined_scores = combined_scores.fillna(0)
-            
-            # Calculate total combined score
-            combined_scores['Total Score'] = combined_scores.sum(axis=1)
+                efficiency_scores = df.groupby('employee')['gross_sales'].sum().sort_values(ascending=False)
             
             # Find qualified employees with availability for THIS shift
             available_employees = []
-            for emp in combined_scores.index:
+            for emp in efficiency_scores.index:
                 if emp in availability and (
                     day in availability[emp]['days'] and
                     availability[emp]['shifts'].get(shift_name, False) and  # Explicit check
@@ -428,11 +375,9 @@ def plot_weekly_schedule_with_availability(df, availability):
                 ):
                     available_employees.append(emp)
             
-            # Sort available employees by combined score (descending)
+            # Sort available employees by efficiency score (descending)
             # This ensures top performers for each specific shift are prioritized
-            available_employees.sort(key=lambda x: combined_scores.loc[x, 'Total Score'] 
-                                    if x in combined_scores.index else 0, 
-                                    reverse=True)
+            available_employees.sort(key=lambda x: efficiency_scores.loc[x], reverse=True)
             
             # Assign needed staff (respecting required_staff)
             needed = required_staff - len(current_staff)
@@ -447,8 +392,8 @@ def plot_weekly_schedule_with_availability(df, availability):
                 
                 # Format display
                 current_cell = schedule.at[day, shift_name]
-                # Get employee's combined score
-                score = combined_scores.loc[emp, 'Total Score'] if emp in combined_scores.index else 0
+                # Get employee's score for this shift
+                score = efficiency_scores.loc[emp] if emp in efficiency_scores.index else 0
                 emp_display = f"{emp}\n  Score: {score:.0f}"
                 schedule.at[day, shift_name] = f"{current_cell}\n\n{emp_display}".strip() if current_cell else emp_display
         
@@ -498,7 +443,7 @@ def plot_weekly_schedule_with_availability(df, availability):
         ax.set_yticklabels(schedule.index, rotation=0, fontsize=16, fontweight='bold')
         ax.xaxis.tick_top()
         ax.xaxis.set_label_position('top')
-        ax.set_title('AI Optimized Labor Schedule (w/ Avg Sales per Shift)', pad=24, fontsize=22, fontweight='bold')
+        ax.set_title('AI Optimized Labor Schedule (Shift Efficiency)', pad=24, fontsize=22, fontweight='bold')
         plt.tight_layout()
         
         # Save figure for PDF export
