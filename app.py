@@ -681,7 +681,7 @@ def plot_employee_shift_type_count(df):
                 cell_content = ""
                 for emp, count in top_day_shift_employees.items():
                     if count > 0:  # Only show employees who worked shifts
-                        cell_content += f"{emp}  Shifts: {count}\n"
+                        cell_content += f"{emp} : {count}\n"
                 
                 # Store in the heatmap DataFrame - ROTATED AXES
                 heatmap_data.at[shift, day] = cell_content.strip() if cell_content else "0"
