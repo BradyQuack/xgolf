@@ -1100,7 +1100,84 @@ def plot_simplified_employee_evening_score(df):
         ax.axis('off')
         return fig
 
-
+def plot_avg_sales_per_shift(df):
+    """
+    Create a visualization showing average sales per shift by employee.
+    This divides total sales by the number of shifts each employee worked.
+    """
+    try:
+        import pandas as pd
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+        import numpy as np
+        
+        # First, get unique (employee, date) combinations to count actual shifts
+        # This counts each employee only once per day regardless of transaction count
+        unique_shifts = df.drop_duplicates(['employee', 'date'])
+        
+        # Count shifts per employee
+        shifts_worked = unique_shifts.groupby('employee').size()
+        
+        # Calculate total sales per employee
+        total_sales = df.groupby('employee')['gross_sales'].sum()
+        
+        # Calculate average sales per shift
+        avg_sales_per_shift = total_sales / shifts_worked
+        avg_sales_per_shift = avg_sales_per_shift.sort_values(ascending=False)
+        
+        # Add slider to control number of employees displayed
+        num_employees = st.slider(
+            "Number of employees to display",
+            min_value=1,
+            max_value=len(avg_sales_per_shift),
+            value=min(10, len(avg_sales_per_shift)),
+            key="avg_sales_per_shift_slider"
+        )
+        
+        # Filter to top N employees based on slider
+        top_employees = avg_sales_per_shift.head(num_employees)
+        
+        # Create horizontal bar chart
+        fig, ax = plt.subplots(figsize=(16, 8))
+        bars = top_employees.sort_values().plot(
+            kind='barh',
+            color='mediumseagreen',
+            edgecolor='black',
+            ax=ax
+        )
+        
+        # Format x-axis with dollar signs
+        ax.xaxis.set_major_formatter('${x:,.0f}')
+        
+        # Calculate maximum value for setting axis limits
+        max_value = top_employees.max()
+        # Set x-axis limit with 15% padding for labels
+        ax.set_xlim(0, max_value * 1.15)
+        
+        # Add value labels to the end of each bar
+        for i, v in enumerate(top_employees.sort_values()):
+            ax.text(v + (max_value * 0.02), i, f"${v:,.0f}", va='center', fontweight='bold')
+        
+        # Configure chart appearance
+        ax.set_xlabel('Average Sales per Shift ($)', fontsize=12, fontweight='bold')
+        ax.set_ylabel('')
+        ax.set_title('Average Sales per Shift by Employee', fontsize=16, fontweight='bold')
+        
+        # Add a grid for better readability
+        ax.grid(axis='x', linestyle='--', alpha=0.7)
+        
+        # Improve overall appearance
+        plt.tight_layout()
+        
+        return fig
+    except Exception as e:
+        st.error(f"Error generating average sales per shift visualization: {str(e)}")
+        st.error(traceback.format_exc())
+        fig, ax = plt.subplots(figsize=(10, 5))
+        ax.text(0.5, 0.5, f"Error generating visualization: {str(e)}", 
+                ha='center', va='center', fontsize=14)
+        ax.axis('off')
+        return fig
 
 
 # Main app
@@ -1251,6 +1328,12 @@ try:
                 ax3.text(v + (max_value * 0.02), i, f"${v:,.0f}", va='center', fontweight='bold')
             
             st.pyplot(fig3)
+
+        # === VISUALIZATION 9: AVERAGE SALES PER SHIFT BY EMPLOYEE (COLLAPSIBLE) ===
+
+        with st.expander("💰 Average Sales per Shift by Employee", expanded=False):
+            avg_sales_per_shift_fig = plot_avg_sales_per_shift(df)
+            st.pyplot(avg_sales_per_shift_fig)
         
         # === VISUALIZATION 4: AVERAGE SALE PER TRANSACTION (COLLAPSIBLE) ===
         with st.expander("💰 Average Sale per Transaction by Employee", expanded=False):
