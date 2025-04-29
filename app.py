@@ -22,7 +22,7 @@ if 'shift_config' not in st.session_state:
 
 @st.cache_data
 def load_and_process_data(uploaded_file):
-    """Load and process CSV data with caching for performance."""
+    """Load and process CSV data with caching for efficiency."""
     try:
         data = pd.read_csv(uploaded_file)
         df = data[['Date', 'Time', 'Gross Sales', 'Employee']].copy()
@@ -180,7 +180,7 @@ def get_employee_availability(df):
     st.sidebar.header("Employee Availability")
     
     try:
-        # Get unique employees sorted by performance
+        # Get unique employees sorted by efficiency
         employee_sales = df.groupby('employee')['gross_sales'].sum().sort_values(ascending=False)
         employees = employee_sales.index.tolist()
         
@@ -270,7 +270,7 @@ def plot_weekly_schedule_with_availability(df, availability):
     Generate optimized schedule considering:
     - Shift configurations (start/end times, staff requirements)
     - Employee availability (days, shifts, max shifts)
-    - Employee performance in specific shifts (using the same scoring system as the shift performance visualizations)
+    - Employee efficiency in specific shifts (using the same scoring system as the shift efficiency visualizations)
     - Shift sales (higher revenue shifts prioritized)
     - Ensures exactly required staff per shift
     - Prevents duplicate assignments
@@ -291,11 +291,11 @@ def plot_weekly_schedule_with_availability(df, availability):
         morning_data = df[df['shift_type'] == morning_shift]
         evening_data = df[df['shift_type'] == evening_shift]
         
-        # Calculate performance scores for morning shift using the same logic as plot_simplified_employee_morning_score
-        morning_scores = calculate_shift_performance_scores(morning_data)
+        # Calculate efficiency scores for morning shift using the same logic as plot_simplified_employee_morning_score
+        morning_scores = calculate_shift_efficiency_scores(morning_data)
         
-        # Calculate performance scores for evening shift using the same logic as plot_simplified_employee_evening_score
-        evening_scores = calculate_shift_performance_scores(evening_data)
+        # Calculate efficiency scores for evening shift using the same logic as plot_simplified_employee_evening_score
+        evening_scores = calculate_shift_efficiency_scores(evening_data)
         
         # Process shift data - get CURRENT shift config
         current_shifts = list(st.session_state.shift_config.values())  # Get fresh shift list
@@ -341,7 +341,7 @@ def plot_weekly_schedule_with_availability(df, availability):
         shift_assignments = {day: {shift['name']: [] for shift in current_shifts} 
                             for day in weekday_order}
         
-        # Assign employees to shifts based on performance scores and availability
+        # Assign employees to shifts based on efficiency scores and availability
         for day, shift_name, _ in shift_queue:
             shift_config = next((s for s in current_shifts if s['name'] == shift_name), None)
             if not shift_config:
@@ -354,18 +354,18 @@ def plot_weekly_schedule_with_availability(df, availability):
             if len(current_staff) >= required_staff:
                 continue
             
-            # Select the appropriate performance scores based on shift type
+            # Select the appropriate efficiency scores based on shift type
             if shift_name == morning_shift and morning_scores is not None:
-                performance_scores = morning_scores
+                efficiency_scores = morning_scores
             elif shift_name == evening_shift and evening_scores is not None:
-                performance_scores = evening_scores
+                efficiency_scores = evening_scores
             else:
                 # Fallback to overall sales if no specific shift scores available
-                performance_scores = df.groupby('employee')['gross_sales'].sum().sort_values(ascending=False)
+                efficiency_scores = df.groupby('employee')['gross_sales'].sum().sort_values(ascending=False)
             
             # Find qualified employees with availability for THIS shift
             available_employees = []
-            for emp in performance_scores.index:
+            for emp in efficiency_scores.index:
                 if emp in availability and (
                     day in availability[emp]['days'] and
                     availability[emp]['shifts'].get(shift_name, False) and  # Explicit check
@@ -375,9 +375,9 @@ def plot_weekly_schedule_with_availability(df, availability):
                 ):
                     available_employees.append(emp)
             
-            # Sort available employees by performance score (descending)
+            # Sort available employees by efficiency score (descending)
             # This ensures top performers for each specific shift are prioritized
-            available_employees.sort(key=lambda x: performance_scores.loc[x], reverse=True)
+            available_employees.sort(key=lambda x: efficiency_scores.loc[x], reverse=True)
             
             # Assign needed staff (respecting required_staff)
             needed = required_staff - len(current_staff)
@@ -393,8 +393,8 @@ def plot_weekly_schedule_with_availability(df, availability):
                 # Format display
                 current_cell = schedule.at[day, shift_name]
                 # Get employee's score for this shift
-                score = performance_scores.loc[emp] if emp in performance_scores.index else 0
-                emp_display = f"{emp}\nScore: {score:.0f}"
+                score = efficiency_scores.loc[emp] if emp in efficiency_scores.index else 0
+                emp_display = f"{emp}\n    Score: {score:.0f}"
                 schedule.at[day, shift_name] = f"{current_cell}\n\n{emp_display}".strip() if current_cell else emp_display
         
         # Store schedule in session state for export
@@ -459,9 +459,9 @@ def plot_weekly_schedule_with_availability(df, availability):
         ax.axis('off')
         return fig
 
-# Helper function to calculate performance scores for a shift
-def calculate_shift_performance_scores(shift_data):
-    """Calculate performance scores for employees in a specific shift."""
+# Helper function to calculate efficiency scores for a shift
+def calculate_shift_efficiency_scores(shift_data):
+    """Calculate efficiency scores for employees in a specific shift."""
     if shift_data.empty:
         return None
     
@@ -520,7 +520,7 @@ def calculate_shift_performance_scores(shift_data):
 
 @st.cache_data
 def generate_shift_analysis(df):
-    """Generate shift performance analysis based on current shift config."""
+    """Generate shift efficiency analysis based on current shift config."""
     try:
         heatmap_data = df.pivot_table(
             values='gross_sales',
@@ -549,8 +549,8 @@ def generate_shift_analysis(df):
         return pd.DataFrame()
         
 @st.cache_data
-def analyze_employee_shift_performance(df):
-    """Analyze employee performance by shift."""
+def analyze_employee_shift_efficiency(df):
+    """Analyze employee efficiency by shift."""
     try:
         # Assign shift to each row based on hour
         df['shift'] = df.apply(assign_shifts, axis=1)
@@ -566,7 +566,7 @@ def analyze_employee_shift_performance(df):
         
         return employee_shift_stats
     except Exception as e:
-        st.error(f"Error analyzing employee shift performance: {str(e)}")
+        st.error(f"Error analyzing employee shift efficiency: {str(e)}")
         return pd.DataFrame()
 
 def get_csv_download_link():
@@ -719,8 +719,8 @@ def plot_employee_shift_type_count(df):
         # Configure plot appearance - ROTATED AXES
         ax.set_title(f'Top {num_employees} Employees by Shift Count', 
                     fontsize=18, fontweight='bold', pad=20)
-        ax.set_xlabel('Day of Week', fontsize=14, fontweight='bold')
-        ax.set_ylabel('Shift Type', fontsize=14, fontweight='bold')
+        ax.set_xlabel('')
+        ax.set_ylabel('')
         
         # Set tick labels - ROTATED AXES
         ax.set_xticklabels(weekday_order, rotation=0, fontsize=12, fontweight='bold')
@@ -739,7 +739,7 @@ def plot_employee_shift_type_count(df):
         return fig
 
 def generate_shift_analysis_rotated(df):
-    """Generate shift performance analysis based on current shift config with rotated layout."""
+    """Generate shift efficiency analysis based on current shift config with rotated layout."""
     try:
         # Ensure proper weekday ordering
         weekday_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -801,8 +801,8 @@ def generate_shift_analysis_rotated(df):
         
         # Configure plot appearance
         ax.set_title('Sales by Shift and Weekday', fontsize=18, fontweight='bold', pad=20)
-        ax.set_xlabel('Day of Week', fontsize=14, fontweight='bold')
-        ax.set_ylabel('Shift Type', fontsize=14, fontweight='bold')
+        ax.set_xlabel('')
+        ax.set_ylabel('')
         
         # Set tick labels
         ax.set_xticklabels(weekday_order, rotation=0, fontsize=12, fontweight='bold')
@@ -823,7 +823,7 @@ def generate_shift_analysis_rotated(df):
 def plot_simplified_employee_morning_score(df):
     """
     Create a simplified scoring visualization for employees working the morning shift
-    based on multiple performance metrics, showing only the total score.
+    based on multiple efficiency metrics, showing only the total score.
     """
     try:
         # Assign shift type based on hour
@@ -924,8 +924,8 @@ def plot_simplified_employee_morning_score(df):
         
         # Configure chart appearance
         ax.set_title(f'Top Employee Efficiency - {morning_shift}', fontsize=18, fontweight='bold')
-        ax.set_xlabel('Total Score', fontsize=14, fontweight='bold')
-        ax.set_ylabel('Employee', fontsize=14, fontweight='bold')
+        ax.set_xlabel('Efficiency Score', fontsize=14, fontweight='bold')
+        ax.set_ylabel('')
         
         # Set axis limits to provide some padding
         max_score = scores['Total Score'].max()
@@ -939,7 +939,7 @@ def plot_simplified_employee_morning_score(df):
         
         return fig
     except Exception as e:
-        st.error(f"Error generating employee performance score: {str(e)}")
+        st.error(f"Error generating employee efficiency score: {str(e)}")
         st.error(traceback.format_exc())
         fig, ax = plt.subplots(figsize=(10, 5))
         ax.text(0.5, 0.5, f"Error generating visualization: {str(e)}", 
@@ -950,7 +950,7 @@ def plot_simplified_employee_morning_score(df):
 def plot_simplified_employee_evening_score(df):
     """
     Create a simplified scoring visualization for employees working the evening shift
-    based on multiple performance metrics, showing only the total score.
+    based on multiple efficiency metrics, showing only the total score.
     """
     try:
         # Assign shift type based on hour
@@ -1051,8 +1051,8 @@ def plot_simplified_employee_evening_score(df):
         
         # Configure chart appearance
         ax.set_title(f'Top Employee Efficiency - {evening_shift}', fontsize=18, fontweight='bold')
-        ax.set_xlabel('Total Score', fontsize=14, fontweight='bold')
-        ax.set_ylabel('Employee', fontsize=14, fontweight='bold')
+        ax.set_xlabel('Efficiency Score', fontsize=14, fontweight='bold')
+        ax.set_ylabel('')
         
         # Set axis limits to provide some padding
         max_score = scores['Total Score'].max()
@@ -1066,7 +1066,7 @@ def plot_simplified_employee_evening_score(df):
         
         return fig
     except Exception as e:
-        st.error(f"Error generating employee performance score: {str(e)}")
+        st.error(f"Error generating employee efficiency score: {str(e)}")
         st.error(traceback.format_exc())
         fig, ax = plt.subplots(figsize=(10, 5))
         ax.text(0.5, 0.5, f"Error generating visualization: {str(e)}", 
@@ -1088,7 +1088,7 @@ try:
         st.markdown("""
         ### Overview
         The X-Golf Shift Optimizer is a data-driven tool designed to create optimized employee schedules based on:
-        - Historical sales performance
+        - Historical sales efficiency
         - Employee availability
         - Shift patterns
         
@@ -1118,17 +1118,17 @@ try:
 
         4. **Explore Visualizations**
            - Sales patterns by hour & day
-           - Shift performance comparisons
+           - Shift efficiency comparisons
            - Employee efficieny rankings
            - AI-optimized schedule
 
-        ### Performance Metrics
+        ### efficiency Metrics
         | Metric | Description | Importance |
         |---|---|----|
         | Total Sales | Overall revenue generated | Primary revenue indicator |
         | Avg Sale/Transaction | Average transaction value | Upselling ability |
         | Shift Count | Number of shifts worked | Experience indicator |
-        | Performance Score | Combined metrics score | Employee value |
+        | Efficiency Score | Combined metrics score | Employee efficiency |
 
         ### Optimization Benefits
         | Feature | Benefit | Impact |
@@ -1136,7 +1136,7 @@ try:
         | Shift-specific scheduling | Employees in best-performing shifts | 15-25% revenue potential |
         | Data-driven assignments | Removes scheduling bias | Fairer process |
         | Historical analysis | Optimal staffing levels | Cost reduction |
-        | Performance tracking | Identify top performers | Better development |
+        | Efficiency tracking | Identify top performers | Better development |
         """)
 
     if uploaded_file:
@@ -1179,7 +1179,7 @@ try:
             ax1.set_title('Sales by Weekday and Hour', fontsize=16, fontweight='bold')
             st.pyplot(fig1)
 
-        # === VISUALIZATION 2: SHIFT PERFORMANCE ANALYSIS (COLLAPSIBLE) ===
+        # === VISUALIZATION 2: SHIFT efficiency ANALYSIS (COLLAPSIBLE) ===
         with st.expander("📊 Sales Heatmap by Shift", expanded=False):
             # st.markdown("### Original Layout")
             shift_summary = generate_shift_analysis(df)
@@ -1293,8 +1293,8 @@ try:
             
             st.pyplot(fig4)
         
-        # Analyze shift-specific performance
-        employee_shift_stats = analyze_employee_shift_performance(df)
+        # Analyze shift-specific efficiency
+        employee_shift_stats = analyze_employee_shift_efficiency(df)
         
         # === VISUALIZATION 5: TOTAL SALES BY EMPLOYEE - MORNING SHIFT (COLLAPSIBLE) ===
         morning_shift = st.session_state.shift_config['Shift 1']['name']
@@ -1396,7 +1396,7 @@ try:
             except Exception as e:
                 st.error(f"Error generating {evening_shift} visualization: {str(e)}")
 
-                  # Add this to your app after the Shift Performance Analysis section:
+                  # Add this to your app after the Shift efficiency Analysis section:
         with st.expander("👥 Employee Shift History", expanded=False):
             shift_count_fig = plot_employee_shift_type_count(df)
             st.pyplot(shift_count_fig)              
@@ -1408,7 +1408,7 @@ try:
             else:
                 st.info("No morning shift data available for scoring")
 
-        # Add this code right after the morning shift performance section
+        # Add this code right after the morning shift efficiency section
 
         with st.expander("🏆 Employee 2nd Shift Efficiency - Ranked", expanded=False):
             evening_score_fig = plot_simplified_employee_evening_score(df)
