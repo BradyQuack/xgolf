@@ -1147,7 +1147,7 @@ try:
            - Employee efficieny rankings
            - AI-optimized schedule
 
-        ### efficiency Metrics
+        ### Efficiency Metrics
         | Metric | Description | Importance |
         |---|---|----|
         | Total Sales | Overall revenue generated | Primary revenue indicator |
