@@ -1147,216 +1147,275 @@ try:
             # Configure shifts
             configure_shifts()
             
-                        # ===== VISUALIZATION SECTION =====
+    
+        # === VISUALIZATION 1: WEEKDAY VS HOUR HEATMAP (COLLAPSIBLE) ===
+        with st.expander("📊 Sales Heatmap by Weekday/Hour", expanded=False):
+            # Ensure proper weekday ordering
+            weekday_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+            df['weekday'] = pd.Categorical(df['weekday'], categories=weekday_order, ordered=True)
 
-            # === VISUALIZATION 1: WEEKDAY VS HOUR HEATMAP ===
-            with st.expander("📊 Sales Heatmap by Weekday/Hour", expanded=False):
-                # Ensure proper weekday ordering
-                weekday_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-                df['weekday'] = pd.Categorical(df['weekday'], categories=weekday_order, ordered=True)
+            heatmap_data = df.pivot_table(
+                values='gross_sales',
+                index='weekday',
+                columns='hour',
+                aggfunc='sum',
+                fill_value=0
+            ).reindex(weekday_order)  # Force correct order
 
-                heatmap_data = df.pivot_table(
-                    values='gross_sales',
-                    index='weekday',
-                    columns='hour',
-                    aggfunc='sum',
-                    fill_value=0
-                ).reindex(weekday_order)
+            fig1, ax1 = plt.subplots(figsize=(16, 8))
+            sns.heatmap(
+                heatmap_data,
+                cmap='Greens',
+                linewidths=0.3,
+                linecolor='gray',
+                fmt='',
+                annot=np.array([["${:,.0f}".format(val) for val in row] for row in heatmap_data.values]),
+                annot_kws={"size": 8},
+                cbar_kws={'label': 'Gross Sales ($)'},
+                ax=ax1
+            )
+            ax1.set_xlabel('Hour of Day', fontsize=12, fontweight='bold')
+            ax1.set_ylabel('')
+            ax1.set_title('Sales by Weekday and Hour', fontsize=16, fontweight='bold')
+            st.pyplot(fig1)
 
-                fig1, ax1 = plt.subplots(figsize=(16, 8))
-                sns.heatmap(
-                    heatmap_data,
-                    cmap='Greens',
-                    linewidths=0.3,
-                    linecolor='gray',
-                    fmt='',
-                    annot=np.array([["${:,.0f}".format(val) for val in row] for row in heatmap_data.values]),
-                    annot_kws={"size": 8},
-                    cbar_kws={'label': 'Gross Sales ($)'},
-                    ax=ax1
-                )
-                ax1.set_xlabel('Hour of Day', fontsize=12, fontweight='bold')
-                ax1.set_ylabel('')
-                ax1.set_title('Sales by Weekday and Hour', fontsize=16, fontweight='bold')
-                st.pyplot(fig1)
+        # === VISUALIZATION 2: SHIFT PERFORMANCE ANALYSIS (COLLAPSIBLE) ===
+        with st.expander("📊 Sales Heatmap by Shift", expanded=False):
+            # st.markdown("### Original Layout")
+            shift_summary = generate_shift_analysis(df)
+            
+            # fig2, ax2 = plt.subplots(figsize=(16, 6))
+            # sns.heatmap(
+            #     shift_summary,
+            #     annot=np.array([["${:,.0f}".format(val) for val in row] for row in shift_summary.values]),
+            #     fmt='',
+            #     cmap='Greens',
+            #     linewidths=0.5,
+            #     linecolor='gray',
+            #     cbar_kws={'label': 'Gross Sales ($)'},
+            #     ax=ax2
+            # )
+            # ax2.set_xlabel('Shift', fontsize=12, fontweight='bold')
+            # ax2.set_ylabel('', fontsize=14)
+            # ax2.set_title('Sales by Shift and Weekday (Original)', fontsize=16, fontweight='bold')
+            # st.pyplot(fig2)
+            
+            # st.markdown("### Rotated Layout")
+            # # Use the new rotated function
+            rotated_shift_fig = generate_shift_analysis_rotated(df)
+            st.pyplot(rotated_shift_fig)
 
-            # === VISUALIZATION 2: SHIFT PERFORMANCE ANALYSIS ===
-            with st.expander("📊 Sales Heatmap by Shift", expanded=False):
-                rotated_shift_fig = generate_shift_analysis_rotated(df)
-                st.pyplot(rotated_shift_fig)
-
-            # === VISUALIZATION 3: TOTAL SALES BY EMPLOYEE ===
-            with st.expander("💰 Total Sales by Employee", expanded=False):
-                employee_sales = df.groupby('employee')['gross_sales'].sum().sort_values(ascending=False)
+        # === VISUALIZATION 3: TOTAL SALES BY EMPLOYEE (COLLAPSIBLE) ===
+        with st.expander("💰 Total Sales by Employee", expanded=False):
+            employee_sales = df.groupby('employee')['gross_sales'].sum().sort_values(ascending=False)
+            
+            # Add slider to control number of employees displayed
+            num_employees = st.slider(
+                "Number of employees to display",
+                min_value=1,
+                max_value=len(employee_sales),
+                value=min(10, len(employee_sales)),
+                key="total_sales_slider"
+            )
+            
+            # Filter to top N employees based on slider
+            top_employees = employee_sales.head(num_employees)
+            
+            fig3, ax3 = plt.subplots(figsize=(16, 8))
+            top_employees.sort_values().plot(
+                kind='barh',
+                color='green',
+                edgecolor='black',
+                ax=ax3
+            )
+            ax3.set_xlabel('Gross Sales ($)', fontsize=12, fontweight='bold')
+            ax3.set_ylabel('')
+            ax3.set_title(f'Total Sales by Top {num_employees} Employees', fontsize=16, fontweight='bold')
+            
+            # Format x-axis with dollar signs
+            ax3.xaxis.set_major_formatter('${x:,.0f}')
+            
+            # Calculate maximum value for setting axis limits
+            max_value = top_employees.max()
+            # Set x-axis limit with 15% padding for labels
+            ax3.set_xlim(0, max_value * 1.15)
+            
+            # Add value labels
+            for i, v in enumerate(top_employees.sort_values()):
+                ax3.text(v + (max_value * 0.02), i, f"${v:,.0f}", va='center', fontweight='bold')
+            
+            st.pyplot(fig3)
+        
+        # === VISUALIZATION 4: AVERAGE SALE PER TRANSACTION (COLLAPSIBLE) ===
+        with st.expander("💰 Average Sale per Transaction by Employee", expanded=False):
+            # Calculate average sale per transaction for each employee
+            avg_sales = df.groupby('employee').agg({
+                'gross_sales': 'sum',
+                'date': 'count'  # Count transactions
+            })
+            avg_sales['avg_sale'] = avg_sales['gross_sales'] / avg_sales['date']
+            avg_sales = avg_sales.sort_values('avg_sale', ascending=False)
+            
+            # Add slider to control number of employees displayed
+            num_avg_employees = st.slider(
+                "Number of employees to display",
+                min_value=1,
+                max_value=len(avg_sales),
+                value=min(10, len(avg_sales)),
+                key="avg_sales_slider"
+            )
+            
+            # Filter to top N employees based on slider
+            top_avg_employees = avg_sales['avg_sale'].head(num_avg_employees)
+            
+            fig4, ax4 = plt.subplots(figsize=(16, 8))
+            top_avg_employees.sort_values().plot(
+                kind='barh',
+                color='lightgreen',
+                edgecolor='black',
+                ax=ax4
+            )
+            ax4.set_xlabel('Average Sale ($)', fontsize=12, fontweight='bold')
+            ax4.set_ylabel('')
+            ax4.set_title(f'Average Sale per Transaction - Top {num_avg_employees} Employees', fontsize=16, fontweight='bold')
+            
+            # Format x-axis with dollar signs
+            ax4.xaxis.set_major_formatter('${x:,.0f}')
+            
+            # Calculate maximum value for setting axis limits
+            max_value = top_avg_employees.max()
+            # Set x-axis limit with 15% padding for labels
+            ax4.set_xlim(0, max_value * 1.15)
+            
+            # Add value labels
+            for i, v in enumerate(top_avg_employees.sort_values()):
+                ax4.text(v + (max_value * 0.02), i, f"${v:,.0f}", va='center', fontweight='bold')
+            
+            st.pyplot(fig4)
+        
+        # Analyze shift-specific performance
+        employee_shift_stats = analyze_employee_shift_performance(df)
+        
+        # === VISUALIZATION 5: TOTAL SALES BY EMPLOYEE - MORNING SHIFT (COLLAPSIBLE) ===
+        morning_shift = st.session_state.shift_config['Shift 1']['name']
+        with st.expander(f"👥 Total Sales by Employee - {morning_shift}", expanded=False):
+            # Filter for Morning Shift
+            try:
+                morning_sales = employee_shift_stats.loc[(slice(None), morning_shift), 'gross_sales']
+                morning_sales = morning_sales.reset_index().set_index('employee')['gross_sales'].sort_values(ascending=False)
                 
-                num_employees = st.slider(
-                    "Number of employees to display",
-                    min_value=1,
-                    max_value=len(employee_sales),
-                    value=min(10, len(employee_sales)),
-                    key="total_sales_slider"
-                )
-                
-                top_employees = employee_sales.head(num_employees)
-                
-                fig3, ax3 = plt.subplots(figsize=(16, 8))
-                top_employees.sort_values().plot(
-                    kind='barh',
-                    color='green',
-                    edgecolor='black',
-                    ax=ax3
-                )
-                ax3.set_xlabel('Gross Sales ($)', fontsize=12, fontweight='bold')
-                ax3.set_ylabel('')
-                ax3.set_title(f'Total Sales by Top {num_employees} Employees', fontsize=16, fontweight='bold')
-                ax3.xaxis.set_major_formatter('${x:,.0f}')
-                max_value = top_employees.max()
-                ax3.set_xlim(0, max_value * 1.15)
-                
-                for i, v in enumerate(top_employees.sort_values()):
-                    ax3.text(v + (max_value * 0.02), i, f"${v:,.0f}", va='center', fontweight='bold')
-                
-                st.pyplot(fig3)
-
-            # === VISUALIZATION 4: AVERAGE SALE PER TRANSACTION ===
-            with st.expander("💰 Average Sale per Transaction by Employee", expanded=False):
-                avg_sales = df.groupby('employee').agg({
-                    'gross_sales': 'sum',
-                    'date': 'count'
-                })
-                avg_sales['avg_sale'] = avg_sales['gross_sales'] / avg_sales['date']
-                avg_sales = avg_sales.sort_values('avg_sale', ascending=False)
-                
-                num_avg_employees = st.slider(
-                    "Number of employees to display",
-                    min_value=1,
-                    max_value=len(avg_sales),
-                    value=min(10, len(avg_sales)),
-                    key="avg_sales_slider"
-                )
-                
-                top_avg_employees = avg_sales['avg_sale'].head(num_avg_employees)
-                
-                fig4, ax4 = plt.subplots(figsize=(16, 8))
-                top_avg_employees.sort_values().plot(
-                    kind='barh',
-                    color='lightgreen',
-                    edgecolor='black',
-                    ax=ax4
-                )
-                ax4.set_xlabel('Average Sale ($)', fontsize=12, fontweight='bold')
-                ax4.set_ylabel('')
-                ax4.set_title(f'Average Sale per Transaction - Top {num_avg_employees} Employees', fontsize=16, fontweight='bold')
-                ax4.xaxis.set_major_formatter('${x:,.0f}')
-                max_value = top_avg_employees.max()
-                ax4.set_xlim(0, max_value * 1.15)
-                
-                for i, v in enumerate(top_avg_employees.sort_values()):
-                    ax4.text(v + (max_value * 0.02), i, f"${v:,.0f}", va='center', fontweight='bold')
-                
-                st.pyplot(fig4)
-
-            # === VISUALIZATION 5: MORNING SHIFT PERFORMANCE ===
-            morning_shift = st.session_state.shift_config['Shift 1']['name']
-            with st.expander(f"👥 Total Sales by Employee - {morning_shift}", expanded=False):
-                try:
-                    employee_shift_stats = analyze_employee_shift_performance(df)
-                    morning_sales = employee_shift_stats.loc[(slice(None), morning_shift), 'gross_sales']
-                    morning_sales = morning_sales.reset_index().set_index('employee')['gross_sales'].sort_values(ascending=False)
+                if not morning_sales.empty:
+                    # Add slider to control number of employees displayed
+                    num_morning_employees = st.slider(
+                        "Number of employees to display",
+                        min_value=1,
+                        max_value=len(morning_sales),
+                        value=min(5, len(morning_sales)),
+                        key="morning_shift_slider"
+                    )
                     
-                    if not morning_sales.empty:
-                        num_morning_employees = st.slider(
-                            "Number of employees to display",
-                            min_value=1,
-                            max_value=len(morning_sales),
-                            value=min(5, len(morning_sales)),
-                            key="morning_shift_slider"
-                        )
-                        
-                        top_morning_employees = morning_sales.sort_values(ascending=False).head(num_morning_employees)
-                        
-                        fig5, ax5 = plt.subplots(figsize=(16, 8))
-                        top_morning_employees.sort_values().plot(
-                            kind='barh',
-                            color='forestgreen',
-                            edgecolor='black',
-                            ax=ax5
-                        )
-                        ax5.set_xlabel('Gross Sales ($)', fontsize=12, fontweight='bold')
-                        ax5.set_ylabel('')
-                        ax5.set_title(f'Total Sales by Top {num_morning_employees} Employees - {morning_shift}', fontsize=16, fontweight='bold')
-                        ax5.xaxis.set_major_formatter('${x:,.0f}')
-                        max_value = top_morning_employees.max()
-                        ax5.set_xlim(0, max_value * 1.15)
-                        
-                        for i, v in enumerate(top_morning_employees.sort_values()):
-                            ax5.text(v + (max_value * 0.02), i, f"${v:,.0f}", va='center', fontweight='bold')
-                        
-                        st.pyplot(fig5)
-                    else:
-                        st.info(f"No data available for {morning_shift}")
-                except Exception as e:
-                    st.error(f"Error generating {morning_shift} visualization: {str(e)}")
-
-            # === VISUALIZATION 6: EVENING SHIFT PERFORMANCE ===
-            evening_shift = st.session_state.shift_config['Shift 2']['name']
-            with st.expander(f"👥 Total Sales by Employee - {evening_shift}", expanded=False):
-                try:
-                    evening_sales = employee_shift_stats.loc[(slice(None), evening_shift), 'gross_sales']
-                    evening_sales = evening_sales.reset_index().set_index('employee')['gross_sales'].sort_values(ascending=False)
+                    # Filter to top N employees based on slider
+                    top_morning_employees = morning_sales.sort_values(ascending=False).head(num_morning_employees)
                     
-                    if not evening_sales.empty:
-                        num_evening_employees = st.slider(
-                            "Number of employees to display",
-                            min_value=1,
-                            max_value=len(evening_sales),
-                            value=min(5, len(evening_sales)),
-                            key="evening_shift_slider"
-                        )
-                        
-                        top_evening_employees = evening_sales.head(num_evening_employees)
-                        
-                        fig6, ax6 = plt.subplots(figsize=(16, 8))
-                        top_evening_employees.sort_values().plot(
-                            kind='barh',
-                            color='darkgreen',
-                            edgecolor='black',
-                            ax=ax6
-                        )
-                        ax6.set_xlabel('Gross Sales ($)', fontsize=12, fontweight='bold')
-                        ax6.set_ylabel('')
-                        ax6.set_title(f'Total Sales by Top {num_evening_employees} Employees - {evening_shift}', fontsize=16, fontweight='bold')
-                        ax6.xaxis.set_major_formatter('${x:,.0f}')
-                        max_value = top_evening_employees.max()
-                        ax6.set_xlim(0, max_value * 1.15)
-                        
-                        for i, v in enumerate(top_evening_employees.sort_values()):
-                            ax6.text(v + (max_value * 0.02), i, f"${v:,.0f}", va='center', fontweight='bold')
-                        
-                        st.pyplot(fig6)
-                    else:
-                        st.info(f"No data available for {evening_shift}")
-                except Exception as e:
-                    st.error(f"Error generating {evening_shift} visualization: {str(e)}")
-
-            # === ADDITIONAL VISUALIZATIONS ===
-            with st.expander("👥 Employee Shift History", expanded=False):
-                shift_count_fig = plot_employee_shift_type_count(df)
-                st.pyplot(shift_count_fig)
-
-            with st.expander("🏆 Employee 1st Shift Efficiency - Ranked", expanded=False):
-                morning_score_fig = plot_simplified_employee_morning_score(df)
-                if morning_score_fig:
-                    st.pyplot(morning_score_fig)
+                    fig5, ax5 = plt.subplots(figsize=(16, 8))
+                    top_morning_employees.sort_values().plot(
+                        kind='barh',
+                        color='forestgreen',
+                        edgecolor='black',
+                        ax=ax5
+                    )
+                    ax5.set_xlabel('Gross Sales ($)', fontsize=12, fontweight='bold')
+                    ax5.set_ylabel('')
+                    ax5.set_title(f'Total Sales by Top {num_morning_employees} Employees - {morning_shift}', fontsize=16, fontweight='bold')
+                    
+                    # Format x-axis with dollar signs
+                    ax5.xaxis.set_major_formatter('${x:,.0f}')
+                    
+                    # Calculate maximum value for setting axis limits
+                    max_value = top_morning_employees.max()
+                    # Set x-axis limit with 15% padding for labels
+                    ax5.set_xlim(0, max_value * 1.15)
+                    
+                    # Add value labels
+                    for i, v in enumerate(top_morning_employees.sort_values()):
+                        ax5.text(v + (max_value * 0.02), i, f"${v:,.0f}", va='center', fontweight='bold')
+                    
+                    st.pyplot(fig5)
                 else:
-                    st.info("No morning shift data available for scoring")
-
-            with st.expander("🏆 Employee 2nd Shift Efficiency - Ranked", expanded=False):
-                evening_score_fig = plot_simplified_employee_evening_score(df)
-                if evening_score_fig:
-                    st.pyplot(evening_score_fig)
+                    st.info(f"No data available for {morning_shift}")
+            except Exception as e:
+                st.error(f"Error generating {morning_shift} visualization: {str(e)}")
+        
+        # === VISUALIZATION 6: TOTAL SALES BY EMPLOYEE - EVENING SHIFT (COLLAPSIBLE) ===
+        evening_shift = st.session_state.shift_config['Shift 2']['name']
+        with st.expander(f"👥 Total Sales by Employee - {evening_shift}", expanded=False):
+            # Filter for Evening Shift
+            try:
+                evening_sales = employee_shift_stats.loc[(slice(None), evening_shift), 'gross_sales']
+                evening_sales = evening_sales.reset_index().set_index('employee')['gross_sales'].sort_values(ascending=False)
+                
+                if not evening_sales.empty:
+                    # Add slider to control number of employees displayed
+                    num_evening_employees = st.slider(
+                        "Number of employees to display",
+                        min_value=1,
+                        max_value=len(evening_sales),
+                        value=min(5, len(evening_sales)),
+                        key="evening_shift_slider"
+                    )
+                    
+                    # Filter to top N employees based on slider
+                    top_evening_employees = evening_sales.head(num_evening_employees)
+                    
+                    fig6, ax6 = plt.subplots(figsize=(16, 8))
+                    top_evening_employees.sort_values().plot(
+                        kind='barh',
+                        color='darkgreen',
+                        edgecolor='black',
+                        ax=ax6
+                    )
+                    ax6.set_xlabel('Gross Sales ($)', fontsize=12, fontweight='bold')
+                    ax6.set_ylabel('')
+                    ax6.set_title(f'Total Sales by Top {num_evening_employees} Employees - {evening_shift}', fontsize=16, fontweight='bold')
+                    
+                    # Format x-axis with dollar signs
+                    ax6.xaxis.set_major_formatter('${x:,.0f}')
+                    
+                    # Calculate maximum value for setting axis limits
+                    max_value = top_evening_employees.max()
+                    # Set x-axis limit with 15% padding for labels
+                    ax6.set_xlim(0, max_value * 1.15)
+                    
+                    # Add value labels
+                    for i, v in enumerate(top_evening_employees.sort_values()):
+                        ax6.text(v + (max_value * 0.02), i, f"${v:,.0f}", va='center', fontweight='bold')
+                    
+                    st.pyplot(fig6)
                 else:
-                    st.info("No evening shift data available for scoring")
+                    st.info(f"No data available for {evening_shift}")
+            except Exception as e:
+                st.error(f"Error generating {evening_shift} visualization: {str(e)}")
+
+                  # Add this to your app after the Shift Performance Analysis section:
+        with st.expander("👥 Employee Shift History", expanded=False):
+            shift_count_fig = plot_employee_shift_type_count(df)
+            st.pyplot(shift_count_fig)              
+
+        with st.expander("🏆 Employee 1st Shift Efficiency - Ranked", expanded=False):
+            morning_score_fig = plot_simplified_employee_morning_score(df)
+            if morning_score_fig:
+                st.pyplot(morning_score_fig)
+            else:
+                st.info("No morning shift data available for scoring")
+
+        # Add this code right after the morning shift performance section
+
+        with st.expander("🏆 Employee 2nd Shift Efficiency - Ranked", expanded=False):
+            evening_score_fig = plot_simplified_employee_evening_score(df)
+            if evening_score_fig:
+                st.pyplot(evening_score_fig)
+            else:
+                st.info("No evening shift data available for scoring")
 
             # === AI OPTIMIZED SCHEDULE (COLLAPSIBLE) ===
             with st.expander("🤖 AI Optimized Labor Schedule", expanded=True):
