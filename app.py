@@ -1158,7 +1158,7 @@ try:
         ### Optimization Benefits
         | Feature | Benefit | Impact |
         |---|---|----|
-        | Shift-specific scheduling | Employees in best-performing shifts | 15-25% revenue potential |
+        | Shift-specific scheduling | Employees in best-performing shifts | 10-15% revenue potential |
         | Data-driven assignments | Removes scheduling bias | Fairer process |
         | Historical analysis | Optimal staffing levels | Cost reduction |
         | Efficiency tracking | Identify top performers | Better development |
