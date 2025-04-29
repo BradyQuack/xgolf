@@ -1084,7 +1084,7 @@ try:
     uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
 
     # Add Instructions expander
-    with st.expander("📘 Instructions", expanded=False):
+    with st.expander("📘 Instructions", expanded=True):
         st.markdown("""
         ### Overview
         The X-Golf Shift Optimizer is a data-driven tool designed to create optimized employee schedules based on:
@@ -1147,7 +1147,7 @@ try:
             # Configure shifts
             configure_shifts()
             
-    
+
         # === VISUALIZATION 1: WEEKDAY VS HOUR HEATMAP (COLLAPSIBLE) ===
         with st.expander("📊 Sales Heatmap by Weekday/Hour", expanded=False):
             # Ensure proper weekday ordering
@@ -1417,88 +1417,88 @@ try:
             else:
                 st.info("No evening shift data available for scoring")
 
-            # === AI OPTIMIZED SCHEDULE (COLLAPSIBLE) ===
-            with st.expander("🤖 AI Optimized Labor Schedule", expanded=True):
-                # Get employee availability
-                availability = get_employee_availability(df)
+        # === AI OPTIMIZED SCHEDULE (COLLAPSIBLE) ===
+        with st.expander("🤖 AI Optimized Labor Schedule", expanded=True):
+            # Get employee availability
+            availability = get_employee_availability(df)
+            
+            # Generate and display schedule
+            schedule_fig = plot_weekly_schedule_with_availability(df, availability)
+            st.pyplot(schedule_fig)
+        
+        # Export options after schedule is generated
+        st.subheader("📤 Export Options")
+        export_col1, export_col2, export_col3 = st.columns(3)
+        
+        with export_col1:
+            csv_link = get_csv_download_link()
+            if csv_link:
+                if st.download_button(
+                    label="📄 Download CSV",
+                    data=st.session_state.schedule_df.to_csv().encode('utf-8'),
+                    file_name="x_golf_schedule.csv",
+                    mime="text/csv",
+                    key="download-csv"
+                ):
+                    st.success("CSV file downloaded successfully!")
+            else:
+                st.button("📄 Download CSV", disabled=True, help="Generate schedule first")
+        
+        with export_col2:
+            excel_link = get_excel_download_link()
+            if excel_link:
+                # For Excel, we need to create the file in memory
+                buffer = io.BytesIO()
+                with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+                    st.session_state.schedule_df.to_excel(writer, sheet_name='Schedule')
+                    
+                    # Format Excel
+                    workbook = writer.book
+                    worksheet = writer.sheets['Schedule']
+                    header_format = workbook.add_format({
+                        'bold': True,
+                        'text_wrap': True,
+                        'valign': 'top',
+                        'fg_color': '#D7E4BC',
+                        'border': 1
+                    })
+                    
+                    for col_num, value in enumerate(st.session_state.schedule_df.columns.values):
+                        worksheet.write(0, col_num + 1, value, header_format)
                 
-                # Generate and display schedule
-                schedule_fig = plot_weekly_schedule_with_availability(df, availability)
-                st.pyplot(schedule_fig)
-            
-            # Export options after schedule is generated
-            st.subheader("📤 Export Options")
-            export_col1, export_col2, export_col3 = st.columns(3)
-            
-            with export_col1:
-                csv_link = get_csv_download_link()
-                if csv_link:
-                    if st.download_button(
-                        label="📄 Download CSV",
-                        data=st.session_state.schedule_df.to_csv().encode('utf-8'),
-                        file_name="x_golf_schedule.csv",
-                        mime="text/csv",
-                        key="download-csv"
-                    ):
-                        st.success("CSV file downloaded successfully!")
-                else:
-                    st.button("📄 Download CSV", disabled=True, help="Generate schedule first")
-            
-            with export_col2:
-                excel_link = get_excel_download_link()
-                if excel_link:
-                    # For Excel, we need to create the file in memory
-                    buffer = io.BytesIO()
-                    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-                        st.session_state.schedule_df.to_excel(writer, sheet_name='Schedule')
-                        
-                        # Format Excel
-                        workbook = writer.book
-                        worksheet = writer.sheets['Schedule']
-                        header_format = workbook.add_format({
-                            'bold': True,
-                            'text_wrap': True,
-                            'valign': 'top',
-                            'fg_color': '#D7E4BC',
-                            'border': 1
-                        })
-                        
-                        for col_num, value in enumerate(st.session_state.schedule_df.columns.values):
-                            worksheet.write(0, col_num + 1, value, header_format)
-                    
-                    buffer.seek(0)
-                    
-                    if st.download_button(
-                        label="📊 Download Excel",
-                        data=buffer,
-                        file_name="x_golf_schedule.xlsx",
-                        mime="application/vnd.ms-excel",
-                        key="download-excel"
-                    ):
-                        st.success("Excel file downloaded successfully!")
-                else:
-                    st.button("📊 Download Excel", disabled=True, help="Generate schedule first")
+                buffer.seek(0)
                 
-            with export_col3:
-                pdf_link = get_pdf_download_link()
-                if pdf_link:
-                    # For PDF, we need to create the file in memory
-                    buffer = io.BytesIO()
-                    with PdfPages(buffer) as pdf:
-                        pdf.savefig(st.session_state.schedule_fig)
-                    
-                    buffer.seek(0)
-                    
-                    if st.download_button(
-                        label="📑 Download PDF",
-                        data=buffer,
-                        file_name="x_golf_schedule.pdf",
-                        mime="application/pdf",
-                        key="download-pdf"
-                    ):
-                        st.success("PDF file downloaded successfully!")
-                else:
-                    st.button("📑 Download PDF", disabled=True, help="Generate schedule first")
+                if st.download_button(
+                    label="📊 Download Excel",
+                    data=buffer,
+                    file_name="x_golf_schedule.xlsx",
+                    mime="application/vnd.ms-excel",
+                    key="download-excel"
+                ):
+                    st.success("Excel file downloaded successfully!")
+            else:
+                st.button("📊 Download Excel", disabled=True, help="Generate schedule first")
+            
+        with export_col3:
+            pdf_link = get_pdf_download_link()
+            if pdf_link:
+                # For PDF, we need to create the file in memory
+                buffer = io.BytesIO()
+                with PdfPages(buffer) as pdf:
+                    pdf.savefig(st.session_state.schedule_fig)
+                
+                buffer.seek(0)
+                
+                if st.download_button(
+                    label="📑 Download PDF",
+                    data=buffer,
+                    file_name="x_golf_schedule.pdf",
+                    mime="application/pdf",
+                    key="download-pdf"
+                ):
+                    st.success("PDF file downloaded successfully!")
+            else:
+                st.button("📑 Download PDF", disabled=True, help="Generate schedule first")
                 
 except Exception as e:
     st.error(f"An unexpected error occurred: {str(e)}")
