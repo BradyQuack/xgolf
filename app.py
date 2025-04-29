@@ -903,7 +903,7 @@ def plot_simplified_employee_morning_score(df):
             "Number of employees to display",
             min_value=1,
             max_value=len(scores),
-            value=min(5, len(scores)),
+            value=min(10, len(scores)),
             key="morning_efficiency_slider"
         )
         
@@ -1043,7 +1043,7 @@ def plot_simplified_employee_evening_score(df):
             "Number of employees to display",
             min_value=1,
             max_value=len(scores),
-            value=min(5, len(scores)),
+            value=min(10, len(scores)),
             key="evening_efficiency_slider"
         )
         
@@ -1335,7 +1335,7 @@ try:
                         "Number of employees to display",
                         min_value=1,
                         max_value=len(morning_sales),
-                        value=min(5, len(morning_sales)),
+                        value=min(10, len(morning_sales)),
                         key="morning_shift_slider"
                     )
                     
@@ -1385,7 +1385,7 @@ try:
                         "Number of employees to display",
                         min_value=1,
                         max_value=len(evening_sales),
-                        value=min(5, len(evening_sales)),
+                        value=min(10, len(evening_sales)),
                         key="evening_shift_slider"
                     )
                     
