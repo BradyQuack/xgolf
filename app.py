@@ -761,6 +761,88 @@ def plot_employee_shift_type_count(df):
         ax.axis('off')
         return fig
 
+def generate_shift_analysis_rotated(df):
+    """Generate shift efficiency analysis based on current shift config with rotated layout."""
+    try:
+        # Ensure proper weekday ordering
+        weekday_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        df['weekday'] = pd.Categorical(df['weekday'], categories=weekday_order, ordered=True)
+        
+        heatmap_data = df.pivot_table(
+            values='gross_sales',
+            index='weekday',
+            columns='hour',
+            aggfunc='sum',
+            fill_value=0
+        )
+        
+        # Get the shift names from the configuration
+        morning_shift = st.session_state.shift_config['Shift 1']['name']
+        evening_shift = st.session_state.shift_config['Shift 2']['name']
+        shift_types = [morning_shift, evening_shift]
+        
+        # Calculate sales for each shift
+        shift_results = {}
+        for shift_key, shift in st.session_state.shift_config.items():
+            shift_hours = list(range(shift['start'], shift['end']))
+            
+            # Only include hours that exist in the data
+            available_hours = [h for h in shift_hours if h in heatmap_data.columns]
+            
+            if available_hours:
+                shift_results[shift['name']] = heatmap_data[available_hours].sum(axis=1)
+            else:
+                # If no hours match, create empty series with correct index
+                shift_results[shift['name']] = pd.Series(0, index=heatmap_data.index)
+        
+        # Create DataFrame from results
+        shift_summary = pd.DataFrame(shift_results)
+        
+        # ROTATE THE LAYOUT - Transpose the DataFrame to have shifts on Y-axis and days on X-axis
+        shift_summary_rotated = shift_summary.T
+                
+        # Create the visualization with rotated layout
+        fig, ax = plt.subplots(figsize=(16, 6))
+        
+        # First create the heatmap without annotations
+        hm = sns.heatmap(
+            shift_summary_rotated,
+            cmap='Greens',
+            linewidths=0.5,
+            linecolor='gray',
+            cbar_kws={'label': 'Gross Sales ($)'},
+            ax=ax,
+            annot=False  # Don't let seaborn handle annotations
+        )
+        
+        # Manually add the dollar annotations
+        for i in range(shift_summary_rotated.shape[0]):
+            for j in range(shift_summary_rotated.shape[1]):
+                value = shift_summary_rotated.iloc[i, j]
+                ax.text(j + 0.5, i + 0.5, f"$ | {value:,.0f}", 
+                        ha="center", va="center", fontsize=12, fontweight='bold')
+        
+        # Configure plot appearance
+        ax.set_title('Sales by Shift and Weekday', fontsize=18, fontweight='bold', pad=20)
+        ax.set_xlabel('')
+        ax.set_ylabel('')
+        
+        # Set tick labels
+        ax.set_xticklabels(weekday_order, rotation=0, fontsize=12, fontweight='bold')
+        ax.set_yticklabels(shift_types, rotation=0, fontsize=14, fontweight='bold')
+        
+        plt.tight_layout()
+        
+        return fig
+    except Exception as e:
+        st.error(f"Error analyzing shifts: {str(e)}")
+        st.error(traceback.format_exc())
+        fig, ax = plt.subplots(figsize=(10, 5))
+        ax.text(0.5, 0.5, f"Error generating shift analysis: {str(e)}", 
+                ha='center', va='center', fontsize=14)
+        ax.axis('off')
+        return fig
+
 def plot_simplified_employee_morning_score(df):
     """
     Create a simplified scoring visualization for employees working the morning shift
