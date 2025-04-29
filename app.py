@@ -394,7 +394,7 @@ def plot_weekly_schedule_with_availability(df, availability):
                 current_cell = schedule.at[day, shift_name]
                 # Get employee's score for this shift
                 score = efficiency_scores.loc[emp] if emp in efficiency_scores.index else 0
-                emp_display = f"{emp}\n | Score: {score:.0f}"
+                emp_display = f"{emp}\n |  Score: {score:.0f}"
                 schedule.at[day, shift_name] = f"{current_cell}\n\n{emp_display}".strip() if current_cell else emp_display
         
         # Store schedule in session state for export
