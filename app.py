@@ -1,4 +1,4 @@
-#app.py
+#Version_018 - Changed Emojis and drop down defaults
 #app.py
 import streamlit as st
 import pandas as pd
@@ -1208,25 +1208,6 @@ try:
         with st.expander("📊 Sales Heatmap by Shift", expanded=False):
             # st.markdown("### Original Layout")
             shift_summary = generate_shift_analysis(df)
-            
-            # fig2, ax2 = plt.subplots(figsize=(16, 6))
-            # sns.heatmap(
-            #     shift_summary,
-            #     annot=np.array([["${:,.0f}".format(val) for val in row] for row in shift_summary.values]),
-            #     fmt='',
-            #     cmap='Greens',
-            #     linewidths=0.5,
-            #     linecolor='gray',
-            #     cbar_kws={'label': 'Gross Sales ($)'},
-            #     ax=ax2
-            # )
-            # ax2.set_xlabel('Shift', fontsize=12, fontweight='bold')
-            # ax2.set_ylabel('', fontsize=14)
-            # ax2.set_title('Sales by Shift and Weekday (Original)', fontsize=16, fontweight='bold')
-            # st.pyplot(fig2)
-            
-            # st.markdown("### Rotated Layout")
-            # # Use the new rotated function
             rotated_shift_fig = generate_shift_analysis_rotated(df)
             st.pyplot(rotated_shift_fig)
 
@@ -1528,6 +1509,3 @@ try:
 except Exception as e:
     st.error(f"An unexpected error occurred: {str(e)}")
     st.error(traceback.format_exc())
-
-    # Next Prompt
-    # History shift count showing top 3 employees
