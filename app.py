@@ -1149,7 +1149,7 @@ try:
             
             with st.expander("📈 Data Visualizations", expanded=False):
                 # === VISUALIZATION 1: WEEKDAY VS HOUR HEATMAP (COLLAPSIBLE) ===
-                with st.expander("🔍 Sales Heatmap by Weekday/Hour", expanded=False):
+                with st.expander("📊 Sales Heatmap by Weekday/Hour", expanded=False):
                     # Ensure proper weekday ordering
                     weekday_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
                     df['weekday'] = pd.Categorical(df['weekday'], categories=weekday_order, ordered=True)
@@ -1206,7 +1206,7 @@ try:
                     st.pyplot(rotated_shift_fig)
 
                 # === VISUALIZATION 3: TOTAL SALES BY EMPLOYEE (COLLAPSIBLE) ===
-                with st.expander("👥 Total Sales by Employee", expanded=False):
+                with st.expander("💰 Total Sales by Employee", expanded=False):
                     employee_sales = df.groupby('employee')['gross_sales'].sum().sort_values(ascending=False)
                     
                     # Add slider to control number of employees displayed
@@ -1298,7 +1298,7 @@ try:
                 
                 # === VISUALIZATION 5: TOTAL SALES BY EMPLOYEE - MORNING SHIFT (COLLAPSIBLE) ===
                 morning_shift = st.session_state.shift_config['Shift 1']['name']
-                with st.expander(f"🌅 Total Sales by Employee - {morning_shift}", expanded=False):
+                with st.expander(f"👥 Total Sales by Employee - {morning_shift}", expanded=False):
                     # Filter for Morning Shift
                     try:
                         morning_sales = employee_shift_stats.loc[(slice(None), morning_shift), 'gross_sales']
@@ -1348,7 +1348,7 @@ try:
                 
                 # === VISUALIZATION 6: TOTAL SALES BY EMPLOYEE - EVENING SHIFT (COLLAPSIBLE) ===
                 evening_shift = st.session_state.shift_config['Shift 2']['name']
-                with st.expander(f"🌃 Total Sales by Employee - {evening_shift}", expanded=False):
+                with st.expander(f"👥 Total Sales by Employee - {evening_shift}", expanded=False):
                     # Filter for Evening Shift
                     try:
                         evening_sales = employee_shift_stats.loc[(slice(None), evening_shift), 'gross_sales']
@@ -1410,7 +1410,7 @@ try:
 
                 # Add this code right after the morning shift performance section
 
-                with st.expander("🌃 Employee 2nd Shift Efficiency - Ranked", expanded=False):
+                with st.expander("🏆 Employee 2nd Shift Efficiency - Ranked", expanded=False):
                     evening_score_fig = plot_simplified_employee_evening_score(df)
                     if evening_score_fig:
                         st.pyplot(evening_score_fig)
