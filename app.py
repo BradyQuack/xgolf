@@ -903,9 +903,9 @@ def plot_simplified_employee_morning_score(df):
             )
         
         # Configure chart appearance
-        ax.set_title(f'Top {num_top_employees} Employee Efficiency - {morning_shift}\n(Includes Avg. Sales Per Shift)', 
+        ax.set_title(f'Top {num_top_employees} Employee Efficiency - {morning_shift}', 
                      fontsize=18, fontweight='bold')
-        ax.set_xlabel('Total Efficiency Score', fontsize=14, fontweight='bold')
+        ax.set_xlabel('Efficiency Score', fontsize=14, fontweight='bold')
         ax.set_ylabel('')
         
         # Set axis limits to provide some padding
@@ -1002,9 +1002,9 @@ def plot_simplified_employee_evening_score(df):
             )
         
         # Configure chart appearance
-        ax.set_title(f'Top {num_top_employees} Employee Efficiency - {evening_shift}\n(Includes Avg. Sales Per Shift)', 
+        ax.set_title(f'Top {num_top_employees} Employee Efficiency - {evening_shift}', 
                      fontsize=18, fontweight='bold')
-        ax.set_xlabel('Total Efficiency Score', fontsize=14, fontweight='bold')
+        ax.set_xlabel('Efficiency Score', fontsize=14, fontweight='bold')
         ax.set_ylabel('')
         
         # Set axis limits to provide some padding
@@ -1156,11 +1156,11 @@ try:
         ### Efficiency Metrics
         | Metric | Description | Importance |
         |---|---|----|
-        | Total Sales | Overall revenue generated | Primary revenue indicator |
+        | Total Sales | Overall revenue generated | Experience indicator |
         | Avg Sale/Transaction | Average transaction value | Upselling ability |
-        | Shift Count | Number of shifts worked | Experience indicator |
-        | **Avg Sales/Shift** | **Sales performance per shift** | **Productivity per shift** |
-        | Efficiency Score | Combined metrics score | Overall employee efficiency |
+        | Shift Count | Number of shifts worked | Availability indicator |
+        | Avg Sales/Shift | Sales performance per shift | Shift productivity indicator |
+        | Efficiency Score | Combined metrics score | Employee efficiency indicator |
 
         ### New Feature: Average Sales Per Shift
         The new "Average Sales Per Shift" metric provides:
@@ -1168,7 +1168,6 @@ try:
         - Accounts for different shift frequencies
         - Helps identify employees who excel in specific shifts
         - Prevents total sales bias toward employees who simply work more shifts
-        - Added as fourth component in efficiency scoring
 
         ### Optimization Benefits
         | Feature | Benefit | Impact |
@@ -1426,7 +1425,7 @@ try:
             shift_count_fig = plot_employee_shift_type_count(df)
             st.pyplot(shift_count_fig)              
 
-        with st.expander("🏆 Employee 1st Shift Efficiency", expanded=False):
+        with st.expander("🏆 Employee 1st Shift Efficiency - Ranked", expanded=False):
             morning_shift = st.session_state.shift_config['Shift 1']['name']
             morning_score_fig = plot_simplified_employee_morning_score(df)
             if morning_score_fig:
@@ -1434,7 +1433,7 @@ try:
             else:
                 st.info("No morning shift data available for scoring")
 
-        with st.expander("🏆 Employee 2nd Shift Efficiency", expanded=False):
+        with st.expander("🏆 Employee 2nd Shift Efficiency - Ranked", expanded=False):
             evening_shift = st.session_state.shift_config['Shift 2']['name']
             evening_score_fig = plot_simplified_employee_evening_score(df)
             if evening_score_fig:
