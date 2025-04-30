@@ -439,8 +439,8 @@ def plot_weekly_schedule_with_availability(df, availability):
             ax=ax
         )
         
-        ax.set_xticklabels(shift_columns, rotation=0, fontsize=16, fontweight='bold')
-        ax.set_yticklabels(schedule.index, rotation=0, fontsize=16, fontweight='bold')
+        ax.set_xticklabels(shift_columns, rotation=0, fontsize=14, fontweight='bold')
+        ax.set_yticklabels(schedule.index, rotation=0, fontsize=14, fontweight='bold')
         ax.xaxis.tick_top()
         ax.xaxis.set_label_position('top')
         ax.set_title('AI Optimized Labor Schedule (Shift Efficiency)', pad=24, fontsize=22, fontweight='bold')
