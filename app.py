@@ -481,18 +481,15 @@ def calculate_shift_efficiency_scores(shift_data):
     )
     
     # === METRIC 2: AVERAGE SALE PER TRANSACTION SCORE ===
-    # Calculate average sale per transaction
-    avg_sale = shift_data.groupby('employee').agg({
-        'gross_sales': 'sum',
-        'date': 'count'  # Count transactions
-    })
-    avg_sale['avg_sale'] = avg_sale['gross_sales'] / avg_sale['date']
-    avg_sale = avg_sale['avg_sale'].sort_values(ascending=False)
+    # Fixed calculation to avoid KeyError with avg_sale
+    transaction_counts = shift_data.groupby('employee')['date'].count()
+    avg_sale_values = total_sales / transaction_counts
+    avg_sale_values = avg_sale_values.sort_values(ascending=False)
     
     # Create scoring based on position
     avg_sale_score = pd.Series(
         range(num_employees, 0, -1),
-        index=avg_sale.index
+        index=avg_sale_values.index
     )
     
     # === METRIC 3: TOTAL SHIFTS WORKED SCORE ===
@@ -1030,255 +1027,6 @@ def plot_simplified_employee_evening_score(df):
         ax.axis('off')
         return fig
 
-def plot_simplified_employee_evening_score(df):
-    """
-    Create a simplified scoring visualization for employees working the evening shift
-    based on multiple efficiency metrics, showing only the total score.
-    Now with a slider to control the number of employees displayed.
-    """
-    try:
-        # Assign shift type based on hour
-        df['shift_type'] = df.apply(assign_shifts, axis=1)
-        
-        # Get the evening shift name from configuration
-        evening_shift = st.session_state.shift_config['Shift 2']['name']
-        
-        # Filter data for evening shift only
-        evening_data = df[df['shift_type'] == evening_shift]
-        
-        # If no evening shift data, return early
-        if evening_data.empty:
-            fig, ax = plt.subplots(figsize=(10, 5))
-            ax.text(0.5, 0.5, "No data available for evening shift", 
-                    ha='center', va='center', fontsize=14)
-            ax.axis('off')
-            return fig
-        
-        # === METRIC 1: TOTAL SALES SCORE ===
-        # Calculate total sales by employee for evening shift
-        total_sales = evening_data.groupby('employee')['gross_sales'].sum().sort_values(ascending=False)
-        
-        # Only include employees with evening shift data
-        if len(total_sales) == 0:
-            return None
-        
-        # Create scoring based on position (highest sales = max score, lowest = 1)
-        num_employees = len(total_sales)
-        total_sales_score = pd.Series(
-            range(num_employees, 0, -1), 
-            index=total_sales.index
-        )
-        
-        # === METRIC 2: AVERAGE SALE PER TRANSACTION SCORE ===
-        # Calculate average sale per transaction
-        avg_sale = evening_data.groupby('employee').agg({
-            'gross_sales': 'sum',
-            'date': 'count'  # Count transactions
-        })
-        avg_sale['avg_sale'] = avg_sale['gross_sales'] / avg_sale['date']
-        avg_sale = avg_sale['avg_sale'].sort_values(ascending=False)
-        
-        # Create scoring based on position
-        avg_sale_score = pd.Series(
-            range(num_employees, 0, -1),
-            index=avg_sale.index
-        )
-        
-        # === METRIC 3: TOTAL EVENING SHIFTS WORKED SCORE ===
-        # Count unique shifts worked per employee
-        # First, get unique (employee, date) combinations to count actual shifts
-        unique_shifts = evening_data.drop_duplicates(['employee', 'date'])
-        shifts_worked = unique_shifts.groupby('employee').size().sort_values(ascending=False)
-        
-        # Create scoring based on position
-        shifts_worked_score = pd.Series(
-            range(num_employees, 0, -1),
-            index=shifts_worked.index
-        )
-        
-        # === COMBINE SCORES ===
-        # Create DataFrame with all scores
-        scores = pd.DataFrame({
-            'Total Sales Score': total_sales_score,
-            'Avg Sale Score': avg_sale_score,
-            'Shifts Worked Score': shifts_worked_score
-        })
-        
-        # Calculate sum of scores
-        scores['Total Score'] = scores.sum(axis=1)
-        scores = scores.sort_values('Total Score', ascending=False)
-        
-        # Add slider to control number of employees displayed
-        num_top_employees = st.slider(
-            "Number of employees to display",
-            min_value=1,
-            max_value=len(scores),
-            value=min(10, len(scores)),
-            key="evening_efficiency_slider"
-        )
-        
-        # Filter to top N employees based on slider
-        top_scores = scores.head(num_top_employees)
-        
-        # Create horizontal bar chart for total scores only
-        fig, ax = plt.subplots(figsize=(16, 10))
-        
-        # Plot horizontal bars for total score only
-        total_score = top_scores['Total Score'].sort_values(ascending=True)
-        bars = ax.barh(
-            total_score.index, 
-            total_score.values,
-            color='darkgreen',  # Darker green to distinguish from morning shift
-            edgecolor='black',
-            alpha=0.8
-        )
-        
-        # Add value labels to the end of each bar
-        for bar in bars:
-            width = bar.get_width()
-            ax.text(
-                width + 0.5,               # Slightly to the right of the bar
-                bar.get_y() + bar.get_height()/2,  # Center of the bar
-                f'{width:.0f}',            # Format as integer
-                va='center',               # Vertical alignment
-                fontweight='bold',         # Make text bold
-                fontsize=12                # Increase font size
-            )
-        
-        # Configure chart appearance
-        ax.set_title(f'Top {num_top_employees} Employee Efficiency - {evening_shift}', fontsize=18, fontweight='bold')
-        ax.set_xlabel('Efficiency Score', fontsize=14, fontweight='bold')
-        ax.set_ylabel('')
-        
-        # Set axis limits to provide some padding
-        max_score = scores['Total Score'].max()
-        ax.set_xlim(0, max_score * 1.1)  # Add 10% padding to the right
-        
-        # Add a grid for better readability
-        ax.grid(axis='x', linestyle='--', alpha=0.7)
-        
-        # Improve overall appearance
-        plt.tight_layout()
-        
-        return fig
-    except Exception as e:
-        st.error(f"Error generating employee efficiency score: {str(e)}")
-        st.error(traceback.format_exc())
-        fig, ax = plt.subplots(figsize=(10, 5))
-        ax.text(0.5, 0.5, f"Error generating visualization: {str(e)}", 
-                ha='center', va='center', fontsize=14)
-        ax.axis('off')
-        return fig
-
-def add_score_breakdown_to_plot(df, shift_name):
-    """
-    Add a table below the efficiency chart showing the score breakdown for each employee.
-    This function should be called after plotting the simplified employee score chart.
-    """
-    try:
-        # Assign shift type based on hour
-        df['shift_type'] = df.apply(assign_shifts, axis=1)
-        
-        # Filter data for the specified shift
-        shift_data = df[df['shift_type'] == shift_name]
-        
-        # If no shift data, return early
-        if shift_data.empty:
-            return None
-        
-        # === METRIC 1: TOTAL SALES SCORE ===
-        # Calculate total sales by employee
-        total_sales = shift_data.groupby('employee')['gross_sales'].sum().sort_values(ascending=False)
-        
-        if len(total_sales) == 0:
-            return None
-        
-        # Create scoring based on position
-        num_employees = len(total_sales)
-        total_sales_score = pd.Series(
-            range(num_employees, 0, -1), 
-            index=total_sales.index
-        )
-        
-        # === METRIC 2: AVERAGE SALE PER TRANSACTION SCORE ===
-        avg_sale = shift_data.groupby('employee').agg({
-            'gross_sales': 'sum',
-            'date': 'count'
-        })
-        avg_sale['avg_sale'] = avg_sale['gross_sales'] / avg_sale['date']
-        avg_sale = avg_sale['avg_sale'].sort_values(ascending=False)
-        
-        # Create scoring based on position
-        avg_sale_score = pd.Series(
-            range(num_employees, 0, -1),
-            index=avg_sale.index
-        )
-        
-        # === METRIC 3: SHIFTS WORKED SCORE ===
-        unique_shifts = shift_data.drop_duplicates(['employee', 'date'])
-        shifts_worked = unique_shifts.groupby('employee').size().sort_values(ascending=False)
-        
-        # Create scoring based on position
-        shifts_worked_score = pd.Series(
-            range(num_employees, 0, -1),
-            index=shifts_worked.index
-        )
-        
-        # === METRIC 4: AVERAGE SALES PER SHIFT SCORE ===
-        avg_sales_per_shift = total_sales / shifts_worked
-        avg_sales_per_shift = avg_sales_per_shift.sort_values(ascending=False)
-        
-        # Create scoring based on position
-        avg_sales_per_shift_score = pd.Series(
-            range(num_employees, 0, -1),
-            index=avg_sales_per_shift.index
-        )
-        
-        # Create DataFrame with all scores and metrics
-        scores_df = pd.DataFrame({
-            'Total Sales': total_sales,
-            'Total Sales Score': total_sales_score,
-            'Avg Sale': avg_sale['avg_sale'],
-            'Avg Sale Score': avg_sale_score,
-            'Shifts Worked': shifts_worked,
-            'Shifts Worked Score': shifts_worked_score,
-            'Avg Sales/Shift': avg_sales_per_shift,
-            'Avg Sales/Shift Score': avg_sales_per_shift_score,
-            'Total Score': total_sales_score + avg_sale_score + shifts_worked_score + avg_sales_per_shift_score
-        })
-        
-        # Sort by total score
-        scores_df = scores_df.sort_values('Total Score', ascending=False)
-        
-        # Format the sales columns as currency
-        scores_df['Total Sales'] = scores_df['Total Sales'].map('${:,.2f}'.format)
-        scores_df['Avg Sale'] = scores_df['Avg Sale'].map('${:,.2f}'.format)
-        scores_df['Avg Sales/Shift'] = scores_df['Avg Sales/Shift'].map('${:,.2f}'.format)
-        
-        # Add a slider to control the number of rows in the table
-        num_employees_table = st.slider(
-            "Number of employees to show in breakdown table",
-            min_value=1,
-            max_value=len(scores_df),
-            value=min(10, len(scores_df)),
-            key=f"{shift_name}_breakdown_slider".lower().replace(" ", "_")
-        )
-        
-        # Display the table with the score breakdown
-        st.subheader(f"Score Breakdown - {shift_name}")
-        st.dataframe(
-            scores_df.head(num_employees_table).style.highlight_max(
-                subset=['Total Sales Score', 'Avg Sale Score', 'Shifts Worked Score', 
-                        'Avg Sales/Shift Score', 'Total Score'], 
-                color='lightgreen'
-            )
-        )
-        
-        return scores_df
-    except Exception as e:
-        st.error(f"Error generating score breakdown: {str(e)}")
-        st.error(traceback.format_exc())
-        return None
 
 def plot_avg_sales_per_shift(df):
     """
@@ -1683,10 +1431,6 @@ try:
             morning_score_fig = plot_simplified_employee_morning_score(df)
             if morning_score_fig:
                 st.pyplot(morning_score_fig)
-                # Add the score breakdown table below the chart
-                morning_scores_df = add_score_breakdown_to_plot(df, morning_shift)
-                if morning_scores_df is None:
-                    st.info("No detailed scores available for this shift")
             else:
                 st.info("No morning shift data available for scoring")
 
@@ -1695,10 +1439,6 @@ try:
             evening_score_fig = plot_simplified_employee_evening_score(df)
             if evening_score_fig:
                 st.pyplot(evening_score_fig)
-                # Add the score breakdown table below the chart
-                evening_scores_df = add_score_breakdown_to_plot(df, evening_shift)
-                if evening_scores_df is None:
-                    st.info("No detailed scores available for this shift")
             else:
                 st.info("No evening shift data available for scoring")
 
