@@ -1096,6 +1096,9 @@ def plot_avg_sales_per_shift(df):
         ax.set_xlabel('Average Sales per Shift ($)', fontsize=12, fontweight='bold')
         ax.set_ylabel('')
         ax.set_title('Average Sales per Shift by Employee', fontsize=16, fontweight='bold')
+        ax.tick_params(axis='y', labelsize=16)
+        for tick in ax4.yaxis.get_major_ticks():
+            tick.label1.set_fontweight('bold')
         
         # Add a grid for better readability
         ax.grid(axis='x', linestyle='--', alpha=0.7)
