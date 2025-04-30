@@ -439,8 +439,8 @@ def plot_weekly_schedule_with_availability(df, availability):
             ax=ax
         )
         
-        ax.set_xticklabels(shift_columns, rotation=0, fontsize=14, fontweight='bold')
-        ax.set_yticklabels(schedule.index, rotation=0, fontsize=14, fontweight='bold')
+        ax.set_xticklabels(shift_columns, rotation=0, fontsize=16, fontweight='bold')
+        ax.set_yticklabels(schedule.index, rotation=0, fontsize=16, fontweight='bold')
         ax.xaxis.tick_top()
         ax.xaxis.set_label_position('top')
         ax.set_title('AI Optimized Labor Schedule (Shift Efficiency)', pad=24, fontsize=22, fontweight='bold')
@@ -734,7 +734,7 @@ def plot_employee_shift_type_count(df):
         
         # Set tick labels - ROTATED AXES
         ax.set_xticklabels(weekday_order, rotation=0, fontsize=12, fontweight='bold')
-        ax.set_yticklabels(shift_types, rotation=0, fontsize=14, fontweight='bold')
+        ax.set_yticklabels(shift_types, rotation=0, fontsize=16, fontweight='bold')
         
         plt.tight_layout()
         
@@ -806,7 +806,7 @@ def generate_shift_analysis_rotated(df):
         for i in range(shift_summary_rotated.shape[0]):
             for j in range(shift_summary_rotated.shape[1]):
                 value = shift_summary_rotated.iloc[i, j]
-                ax.text(j + 0.5, i + 0.5, f"$ | {value:,.0f}", 
+                ax.text(j + 0.5, i + 0.5, f"${value:,.0f}", 
                         ha="center", va="center", fontsize=12, fontweight='bold')
         
         # Configure plot appearance
@@ -816,7 +816,7 @@ def generate_shift_analysis_rotated(df):
         
         # Set tick labels
         ax.set_xticklabels(weekday_order, rotation=0, fontsize=12, fontweight='bold')
-        ax.set_yticklabels(shift_types, rotation=0, fontsize=14, fontweight='bold')
+        ax.set_yticklabels(shift_types, rotation=0, fontsize=16, fontweight='bold')
         
         plt.tight_layout()
         
@@ -914,6 +914,11 @@ def plot_simplified_employee_morning_score(df):
         
         # Add a grid for better readability
         ax.grid(axis='x', linestyle='--', alpha=0.7)
+
+        # After creating the bar chart, add:
+        ax.tick_params(axis='y', labelsize=16)
+        for tick in ax.yaxis.get_major_ticks():
+            tick.label1.set_fontweight('bold')
         
         # Improve overall appearance
         plt.tight_layout()
@@ -1013,6 +1018,11 @@ def plot_simplified_employee_evening_score(df):
         
         # Add a grid for better readability
         ax.grid(axis='x', linestyle='--', alpha=0.7)
+
+        # After creating the bar chart, add:
+        ax.tick_params(axis='y', labelsize=16)
+        for tick in ax.yaxis.get_major_ticks():
+            tick.label1.set_fontweight('bold')
         
         # Improve overall appearance
         plt.tight_layout()
