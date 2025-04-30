@@ -794,7 +794,7 @@ def generate_shift_analysis_rotated(df):
         # First create the heatmap without annotations
         hm = sns.heatmap(
             shift_summary_rotated,
-            cmap='Greens',
+            cmap=['white'],
             linewidths=0.5,
             linecolor='gray',
             cbar_kws={'label': 'Gross Sales ($)'},
@@ -816,7 +816,7 @@ def generate_shift_analysis_rotated(df):
         
         # Set tick labels
         ax.set_xticklabels(weekday_order, rotation=0, fontsize=12, fontweight='bold')
-        ax.set_yticklabels(shift_types, rotation=0, fontsize=16, fontweight='bold')
+        ax.set_yticklabels(shift_types, rotation=0, fontsize=12)
         
         plt.tight_layout()
         
