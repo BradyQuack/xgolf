@@ -1180,6 +1180,7 @@ def plot_avg_sales_per_shift(df):
         return fig
 
 
+
 # Main app
 try:
     st.title("📈 AI Shift Optimization Dashboard")
@@ -1235,7 +1236,7 @@ try:
         ### Optimization Benefits
         | Feature | Benefit | Impact |
         |---|---|----|
-        | Shift-specific scheduling | Employees in best-performing shifts | 10-15% revenue potential |
+        | Shift-specific scheduling | Employees in best-performing shifts | 15-25% revenue potential |
         | Data-driven assignments | Removes scheduling bias | Fairer process |
         | Historical analysis | Optimal staffing levels | Cost reduction |
         | Efficiency tracking | Identify top performers | Better development |
@@ -1329,11 +1330,9 @@ try:
             
             st.pyplot(fig3)
 
-        # === VISUALIZATION 9: AVERAGE SALES PER SHIFT BY (COLLAPSIBLE) ===
-
         with st.expander("💰 Average Sales per Shift by Employee", expanded=False):
             avg_sales_per_shift_fig = plot_avg_sales_per_shift(df)
-            st.pyplot(avg_sales_per_shift_fig)
+            st.pyplot(avg_sales_per_shift_fig) 
         
         # === VISUALIZATION 4: AVERAGE SALE PER TRANSACTION (COLLAPSIBLE) ===
         with st.expander("💰 Average Sale per Transaction by Employee", expanded=False):
