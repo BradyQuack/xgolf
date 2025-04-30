@@ -1157,7 +1157,7 @@ try:
         | Metric | Description | Importance |
         |---|---|----|
         | Total Sales | Overall revenue generated | Experience indicator |
-        | Avg Sale/Transaction | Average transaction value | Upselling ability |
+        | Avg Sale/Transaction | Average transaction value | Upselling ability indicator |
         | Shift Count | Number of shifts worked | Availability indicator |
         | Avg Sales/Shift | Sales performance per shift | Shift productivity indicator |
         | Efficiency Score | Combined metrics score | Employee efficiency indicator |
