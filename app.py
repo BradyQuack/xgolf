@@ -431,7 +431,7 @@ def plot_weekly_schedule_with_availability(df, availability):
             linecolor='gray',
             cbar=False,
             annot_kws={
-                'fontsize': 12 if any('\n\n' in cell for cell in schedule.values.flatten()) else 16,
+                'fontsize': 14 if any('\n\n' in cell for cell in schedule.values.flatten()) else 16,
                 'ha': 'center',
                 'va': 'center',
                 'fontweight': 'bold'
