@@ -1034,10 +1034,6 @@ def plot_avg_sales_per_shift(df):
     This divides total sales by the number of shifts each employee worked.
     """
     try:
-        import pandas as pd
-        import matplotlib.pyplot as plt
-        import seaborn as sns
-        import numpy as np
         
         # First, get unique (employee, date) combinations to count actual shifts
         # This counts each employee only once per day regardless of transaction count
@@ -1184,8 +1180,7 @@ try:
         
         if df is not None:
             # Configure shifts
-            configure_shifts()
-            
+            configure_shifts()     
 
         # === VISUALIZATION 1: WEEKDAY VS HOUR HEATMAP (COLLAPSIBLE) ===
         with st.expander("📊 Sales Heatmap by Weekday/Hour", expanded=False):
