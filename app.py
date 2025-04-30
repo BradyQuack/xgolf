@@ -1256,6 +1256,9 @@ try:
             ax3.set_xlabel('Gross Sales ($)', fontsize=12, fontweight='bold')
             ax3.set_ylabel('')
             ax3.set_title(f'Total Sales by Top {num_employees} Employees', fontsize=16, fontweight='bold')
+            ax3.tick_params(axis='y', labelsize=16)
+            for tick in ax3.yaxis.get_major_ticks():
+                tick.label1.set_fontweight('bold')
             
             # Format x-axis with dollar signs
             ax3.xaxis.set_major_formatter('${x:,.0f}')
