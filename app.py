@@ -1325,6 +1325,10 @@ try:
             # Add value labels
             for i, v in enumerate(top_avg_employees.sort_values()):
                 ax4.text(v + (max_value * 0.02), i, f"${v:,.0f}", va='center', fontweight='bold')
+
+            ax4.tick_params(axis='y', labelsize=16)
+            for tick in ax4.yaxis.get_major_ticks():
+                tick.label1.set_fontweight('bold')
             
             st.pyplot(fig4)
         
