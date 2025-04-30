@@ -1378,6 +1378,10 @@ try:
                     # Add value labels
                     for i, v in enumerate(top_morning_employees.sort_values()):
                         ax5.text(v + (max_value * 0.02), i, f"${v:,.0f}", va='center', fontweight='bold')
+
+                    ax5.tick_params(axis='y', labelsize=16)
+                    for tick in ax5.yaxis.get_major_ticks():
+                        tick.label1.set_fontweight('bold')
                     
                     st.pyplot(fig5)
                 else:
@@ -1416,6 +1420,10 @@ try:
                     ax6.set_xlabel('Gross Sales ($)', fontsize=12, fontweight='bold')
                     ax6.set_ylabel('')
                     ax6.set_title(f'Total Sales by Top {num_evening_employees} Employees - {evening_shift}', fontsize=16, fontweight='bold')
+
+                    ax6.tick_params(axis='y', labelsize=16)
+                    for tick in ax6.yaxis.get_major_ticks():
+                        tick.label1.set_fontweight('bold')
                     
                     # Format x-axis with dollar signs
                     ax6.xaxis.set_major_formatter('${x:,.0f}')
