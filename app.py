@@ -1373,7 +1373,7 @@ try:
     uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
 
     # Add Instructions expander
-    with st.expander("🚀 Getting Started: Instructions", expanded=True):
+    with st.expander("🚀 Getting Started: Instructions", expanded=False):
         # Precompute values
         num_roles = len(st.session_state.roles_config)
         shift1_name = st.session_state.shift_config['Shift 1']['name']
@@ -1443,7 +1443,7 @@ try:
         • Visual conflict alerts  
         """)
 
-    with st.expander("🚀 Optimization Benefits", expanded=True):
+    with st.expander("🚀 Optimization Benefits", expanded=False):
         # Precompute values from session state
         num_roles = len(st.session_state.roles_config)
         num_shifts = len(st.session_state.shift_config)
@@ -1455,31 +1455,27 @@ try:
         - **+15-25% sales potential** through peak shift optimization
         - **Top performer alignment** with highest-grossing hours
         - **Waste reduction** via demand-pattern staffing
+
+        ### 📊 Data-Driven Decisions
+        - **Historical pattern analysis** ({num_shifts} shifts configured)
+        - **Real-time conflict detection**
+        - **Performance-based role assignments**
+
+        ### ⚖️ Fair Scheduling
+        - **Equitable shift distribution** across {num_roles} roles
+        - **Bias prevention** through AI-driven assignments
+        - **Workload balance** alerts via employee capacity tracking
         
         ### 💰 Cost Efficiency
         - **20% labor cost reduction** through:
           - Overstaffing prevention
           - Shift length optimization
           - Role-specific staffing
-        - **Overtime minimization** using availability constraints
-        
-        ### ⚖️ Fair Scheduling
-        - **Equitable shift distribution** across {num_roles} roles
-        - **Bias prevention** through AI-driven assignments
-        - **Workload balance** alerts via employee capacity tracking
-        
-        ### 📊 Data-Driven Decisions
-        - **Historical pattern analysis** ({num_shifts} shifts configured)
-        - **Real-time conflict detection**
-        - **Performance-based role assignments**
         
         ### 🧑💼 Employee Experience
         - **Preference-aware scheduling**
         - **Burnout prevention** through shift caps
         - **Skill development** via role capability tracking
-        
-        *Pro Tip: Combine these benefits with heatmap analysis for maximum operational impact*  
-        *Current configuration supports {num_shifts} shifts and {num_roles} roles*
         """)
 
     
