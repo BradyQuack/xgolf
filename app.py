@@ -23,8 +23,8 @@ if 'shift_config' not in st.session_state:
 # Initialize roles if not present
 if 'roles_config' not in st.session_state:
     st.session_state.roles_config = {
-        'Bartender': {'name': 'Bartender', 'color': 'blue', 'staff': 1},
-        'Help': {'name': 'General Help', 'color': 'green', 'staff': 1}
+        'Role 1': {'name': 'Bartender', 'color': 'blue', 'staff': 1},
+        'Role 2': {'name': 'General Help', 'color': 'green', 'staff': 1}
     }
 
 @st.cache_data
@@ -79,30 +79,40 @@ def configure_roles():
     
     with st.sidebar.expander("⚙️ Role Settings", expanded=False):
         # Display all existing roles
-        for role_key in sorted(st.session_state.roles_config.keys()):
+        role_keys = sorted(
+            st.session_state.roles_config.keys(),
+            key=lambda x: int(x.split()[1]) if x.split()[1].isdigit() else 0
+        )
+        
+        for role_key in role_keys:
             role_data = st.session_state.roles_config[role_key]
             
             st.write(f"**{role_key}**")
             
-            # Role name input
-            name = st.text_input(
-                "Role Name",
-                value=role_data['name'],
-                key=f'role_{role_key}_name'
-            )
+            # Create columns with 3:1 ratio for Role Name and Staff
+            cols = st.columns([3, 1])
             
-            # Staff count
-            staff = st.number_input(
-                "Default Staff",
-                min_value=1,
-                max_value=10,
-                value=role_data.get('staff', 1),
-                key=f'role_{role_key}_staff',
-                step=1
-            )
+            with cols[0]:
+                # Role name input
+                name = st.text_input(
+                    "Role Name",
+                    value=role_data['name'],
+                    key=f'role_{role_key}_name'
+                )
+            
+            with cols[1]:
+                # Staff count
+                staff = st.number_input(
+                    "Staff",
+                    min_value=1,
+                    max_value=10,
+                    value=role_data.get('staff', 1),
+                    key=f'role_{role_key}_staff',
+                    step=1
+                )
             
             # Remove button - don't allow removing the default roles
-            if role_key not in ['Bartender', 'Help']:
+            if role_key not in ['Role 1', 'Role 2']:
                 if st.button(f"❌ Remove", key=f'remove_role_{role_key}'):
                     try:
                         del st.session_state.roles_config[role_key]
@@ -129,42 +139,53 @@ def configure_roles():
             st.markdown("---")
         
         # Add new role section
-        st.write("**Add New Role**")
+        st.write("**Add Another Role**")
         
         # Use a form for adding new roles
         with st.form("add_role_form"):
-            new_role_name = st.text_input("Role Name", key="new_role_name")
-            new_role_staff = st.number_input(
-                "Default Staff",
-                min_value=1,
-                max_value=10,
-                value=1,
-                key="new_role_staff"
-            )
+            # Create columns with 3:1 ratio for Role Name and Staff
+            form_cols = st.columns([3, 1])
+            
+            with form_cols[0]:
+                new_role_name = st.text_input("Role Name", key="new_role_name")
+            
+            with form_cols[1]:
+                new_role_staff = st.number_input(
+                    "Staff",
+                    min_value=1,
+                    max_value=10,
+                    value=1,
+                    key="new_role_staff"
+                )
             
             submit = st.form_submit_button("➕ Add Role")
             
             if submit and new_role_name:
-                # Check if role already exists
-                if new_role_name in st.session_state.roles_config:
-                    st.error(f"Role '{new_role_name}' already exists!")
-                else:
-                    # Add the new role
-                    st.session_state.roles_config[new_role_name] = {
-                        'name': new_role_name,
-                        'color': 'gray',  # Default color
-                        'staff': new_role_staff
-                    }
-                    
-                    # Initialize this role in employee availability preferences
-                    if 'availability' in st.session_state:
-                        for emp in st.session_state.availability:
-                            if 'roles' not in st.session_state.availability[emp]:
-                                st.session_state.availability[emp]['roles'] = {}
-                            st.session_state.availability[emp]['roles'][new_role_name] = True
-                    
-                    st.success(f"Added new role: {new_role_name}")
-                    st.rerun()
+                # Find the next available role number
+                existing_numbers = [
+                    int(key.split()[1]) for key in st.session_state.roles_config.keys()
+                    if key.split()[1].isdigit()
+                ]
+                next_num = max(existing_numbers) + 1 if existing_numbers else 3
+                
+                new_role_key = f'Role {next_num}'
+                
+                # Add the new role
+                st.session_state.roles_config[new_role_key] = {
+                    'name': new_role_name,
+                    'color': 'gray',  # Default color
+                    'staff': new_role_staff
+                }
+                
+                # Initialize this role in employee availability preferences
+                if 'availability' in st.session_state:
+                    for emp in st.session_state.availability:
+                        if 'roles' not in st.session_state.availability[emp]:
+                            st.session_state.availability[emp]['roles'] = {}
+                        st.session_state.availability[emp]['roles'][new_role_key] = True
+                
+                st.success(f"Added new role: {new_role_name}")
+                st.rerun()
 
 
 ##################################################################################################################################################################################################################################################
