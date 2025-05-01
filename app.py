@@ -45,6 +45,8 @@ def load_and_process_data(uploaded_file):
         st.error(traceback.format_exc())
         return None
 
+##################################################################################################################################################################################################################################################
+
 def validate_shift_times(start, end, shift_key):
     """Validate shift start and end times."""
     if end <= start:
@@ -61,6 +63,8 @@ def validate_shift_times(start, end, shift_key):
             st.sidebar.warning(f"⚠️ {shift_key} overlaps with {key}. This may cause scheduling conflicts.")
     
     return True
+
+##################################################################################################################################################################################################################################################
 
 def configure_shifts():
     """Create interactive shift configuration controls with proper ordering, validation and fixed add button."""
@@ -175,6 +179,8 @@ def configure_shifts():
                 except Exception as e:
                     st.error(f"Error adding shift: {str(e)}")
 
+##################################################################################################################################################################################################################################################
+
 def get_employee_availability(df):
     """Create interactive availability input form for employees."""
     st.sidebar.header("Employee Availability")
@@ -252,6 +258,8 @@ def get_employee_availability(df):
         st.error(traceback.format_exc())
         return {}
 
+##################################################################################################################################################################################################################################################
+
 def assign_shifts(row):
     """Assign shift label based on hour and configured shifts."""
     try:
@@ -263,6 +271,8 @@ def assign_shifts(row):
     except Exception as e:
         st.error(f"Error assigning shifts: {str(e)}")
         return 'Unknown'
+
+##################################################################################################################################################################################################################################################
 
 # Don't cache this function as we need fresh results each time
 def plot_weekly_schedule_with_availability(df, availability):
@@ -459,6 +469,8 @@ def plot_weekly_schedule_with_availability(df, availability):
         ax.axis('off')
         return fig
 
+##################################################################################################################################################################################################################################################
+
 # Helper function to calculate efficiency scores for a shift
 # Modified function to calculate shift efficiency scores with average sales per shift
 def calculate_shift_efficiency_scores(shift_data):
@@ -528,6 +540,8 @@ def calculate_shift_efficiency_scores(shift_data):
     
     return total_score
 
+##################################################################################################################################################################################################################################################
+
 @st.cache_data
 def generate_shift_analysis(df):
     """Generate shift efficiency analysis based on current shift config."""
@@ -558,6 +572,8 @@ def generate_shift_analysis(df):
         st.error(f"Error analyzing shifts: {str(e)}")
         return pd.DataFrame()
         
+##################################################################################################################################################################################################################################################
+
 @st.cache_data
 def analyze_employee_shift_efficiency(df):
     """Analyze employee efficiency by shift."""
@@ -579,6 +595,8 @@ def analyze_employee_shift_efficiency(df):
         st.error(f"Error analyzing employee shift efficiency: {str(e)}")
         return pd.DataFrame()
 
+##################################################################################################################################################################################################################################################
+
 def get_csv_download_link():
     """Generate a CSV download link for the schedule."""
     try:
@@ -590,6 +608,8 @@ def get_csv_download_link():
     except Exception as e:
         st.error(f"Error generating CSV link: {str(e)}")
         return None
+
+##################################################################################################################################################################################################################################################
 
 def get_excel_download_link():
     """Generate an Excel download link for the schedule."""
@@ -623,6 +643,8 @@ def get_excel_download_link():
         st.error(f"Error generating Excel link: {str(e)}")
         return None
 
+##################################################################################################################################################################################################################################################
+
 def get_pdf_download_link():
     """Generate a PDF download link for the schedule."""
     try:
@@ -637,6 +659,8 @@ def get_pdf_download_link():
     except Exception as e:
         st.error(f"Error generating PDF link: {str(e)}")
         return None
+
+##################################################################################################################################################################################################################################################
 
 def plot_employee_shift_type_count(df):
     """
@@ -748,6 +772,8 @@ def plot_employee_shift_type_count(df):
         ax.axis('off')
         return fig
 
+##################################################################################################################################################################################################################################################
+
 def generate_shift_analysis_rotated(df):
     """Generate shift efficiency analysis based on current shift config with rotated layout."""
     try:
@@ -829,6 +855,8 @@ def generate_shift_analysis_rotated(df):
                 ha='center', va='center', fontsize=14)
         ax.axis('off')
         return fig
+
+##################################################################################################################################################################################################################################################
 
 def plot_simplified_employee_morning_score(df):
     """
@@ -934,6 +962,8 @@ def plot_simplified_employee_morning_score(df):
         return fig
 
 
+##################################################################################################################################################################################################################################################
+
 def plot_simplified_employee_evening_score(df):
     """
     Create a simplified scoring visualization for employees working the evening shift
@@ -1038,6 +1068,8 @@ def plot_simplified_employee_evening_score(df):
         return fig
 
 
+##################################################################################################################################################################################################################################################
+
 def plot_avg_sales_per_shift(df):
     """
     Create a visualization showing average sales per shift by employee.
@@ -1116,7 +1148,7 @@ def plot_avg_sales_per_shift(df):
         ax.axis('off')
         return fig
 
-
+##################################################################################################################################################################################################################################################
 
 # Main app
 try:
@@ -1195,6 +1227,8 @@ try:
             # Configure shifts
             configure_shifts()     
 
+        #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
         # === VISUALIZATION 1: WEEKDAY VS HOUR HEATMAP (COLLAPSIBLE) ===
         with st.expander("📊 Sales Heatmap by Weekday/Hour", expanded=False):
             # Ensure proper weekday ordering
@@ -1226,12 +1260,16 @@ try:
             ax1.set_title('Sales by Weekday and Hour', fontsize=16, fontweight='bold')
             st.pyplot(fig1)
 
+        #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
         # === VISUALIZATION 2: SHIFT efficiency ANALYSIS (COLLAPSIBLE) ===
         with st.expander("📊 Sales Heatmap by Shift", expanded=False):
             # st.markdown("### Original Layout")
             shift_summary = generate_shift_analysis(df)
             rotated_shift_fig = generate_shift_analysis_rotated(df)
             st.pyplot(rotated_shift_fig)
+
+        #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
         # === VISUALIZATION 3: TOTAL SALES BY EMPLOYEE (COLLAPSIBLE) ===
         with st.expander("💰 Total Sales by Employee", expanded=False):
@@ -1281,6 +1319,8 @@ try:
             avg_sales_per_shift_fig = plot_avg_sales_per_shift(df)
             st.pyplot(avg_sales_per_shift_fig) 
         
+        #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
         # === VISUALIZATION 4: AVERAGE SALE PER TRANSACTION (COLLAPSIBLE) ===
         with st.expander("💰 Average Sale per Transaction by Employee", expanded=False):
             # Calculate average sale per transaction for each employee
@@ -1335,6 +1375,8 @@ try:
         # Analyze shift-specific efficiency
         employee_shift_stats = analyze_employee_shift_efficiency(df)
         
+        #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
         # === VISUALIZATION 5: TOTAL SALES BY EMPLOYEE - MORNING SHIFT (COLLAPSIBLE) ===
         morning_shift = st.session_state.shift_config['Shift 1']['name']
         with st.expander(f"👥 Total Sales by Employee - {morning_shift}", expanded=False):
@@ -1389,6 +1431,8 @@ try:
             except Exception as e:
                 st.error(f"Error generating {morning_shift} visualization: {str(e)}")
         
+        #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
         # === VISUALIZATION 6: TOTAL SALES BY EMPLOYEE - EVENING SHIFT (COLLAPSIBLE) ===
         evening_shift = st.session_state.shift_config['Shift 2']['name']
         with st.expander(f"👥 Total Sales by Employee - {evening_shift}", expanded=False):
@@ -1443,11 +1487,18 @@ try:
             except Exception as e:
                 st.error(f"Error generating {evening_shift} visualization: {str(e)}")
 
-                  # Add this to your app after the Shift efficiency Analysis section:
+        
+        #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+        # === VISUALIZATION 7: Employee Shift History ===
+        # Add this to your app after the Shift efficiency Analysis section:
         with st.expander("👥 Employee Shift History", expanded=False):
             shift_count_fig = plot_employee_shift_type_count(df)
             st.pyplot(shift_count_fig)              
 
+        #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+        # === VISUALIZATION 8: Employee 1st Shift Efficiency - Ranked ===
         with st.expander("🏆 Employee 1st Shift Efficiency - Ranked", expanded=False):
             morning_shift = st.session_state.shift_config['Shift 1']['name']
             morning_score_fig = plot_simplified_employee_morning_score(df)
@@ -1456,6 +1507,9 @@ try:
             else:
                 st.info("No morning shift data available for scoring")
 
+        #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+        # === VISUALIZATION 9: Employee 2nd Shift Efficiency - Ranked ===
         with st.expander("🏆 Employee 2nd Shift Efficiency - Ranked", expanded=False):
             evening_shift = st.session_state.shift_config['Shift 2']['name']
             evening_score_fig = plot_simplified_employee_evening_score(df)
@@ -1463,6 +1517,8 @@ try:
                 st.pyplot(evening_score_fig)
             else:
                 st.info("No evening shift data available for scoring")
+
+        #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
         # === AI OPTIMIZED SCHEDULE (COLLAPSIBLE) ===
         with st.expander("🤖 AI Optimized Labor Schedule", expanded=True):
