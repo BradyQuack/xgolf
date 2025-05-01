@@ -1,4 +1,4 @@
-#Version_018 - Changed Emojis and drop down defaults
+#Version_021 - In progress - Role Configuration - New schedule algorithmn
 #app.py
 import streamlit as st
 import pandas as pd
