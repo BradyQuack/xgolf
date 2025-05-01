@@ -217,9 +217,9 @@ def configure_shifts():
                     key=f'{shift_key}_name'
                 )
                 
-                # Time and staff row
-                cols = st.columns([1, 1, 0.5])
-                with cols[0]:
+                # Time row
+                cols1 = st.columns([1, 1])
+                with cols1[0]:
                     start = st.number_input(
                         "Start",
                         min_value=0,
@@ -228,7 +228,7 @@ def configure_shifts():
                         key=f'{shift_key}_start',
                         step=1
                     )
-                with cols[1]:
+                with cols1[1]:
                     end = st.number_input(
                         "End",
                         min_value=1,
@@ -237,15 +237,45 @@ def configure_shifts():
                         key=f'{shift_key}_end',
                         step=1
                     )
+                
+                # Role and Staff row
+                st.write("**Role Staffing**")
+                
+                # Display each role with a staff count input
+                for role_key, role_data in st.session_state.roles_config.items():
+                    role_cols = st.columns([3, 1])
+                    with role_cols[0]:
+                        st.write(f"{role_data['name']}")
                     
+                    with role_cols[1]:
+                        # Get existing staff count for this role in this shift
+                        role_staff = shift_data.get('role_staff', {}).get(role_key, 1)
+                        
+                        # Staff count input
+                        staff_count = st.number_input(
+                            "Staff",
+                            min_value=0,
+                            max_value=10,
+                            value=role_staff,
+                            key=f'{shift_key}_{role_key}_staff',
+                            step=1
+                        )
+                        
+                        # Store the staff count for this role
+                        if 'role_staff' not in shift_data:
+                            shift_data['role_staff'] = {}
+                        
+                        shift_data['role_staff'][role_key] = staff_count
+                
                 # Validate times
                 is_valid = validate_shift_times(start, end, shift_key)
                 
                 # Remove button
-                with cols[2]:
+                remove_col = st.columns([5, 1])
+                with remove_col[1]:
                     # Don't show remove button for the first two shifts
                     if shift_key not in ['Shift 1', 'Shift 2']:
-                        if st.button(f"❌", key=f'remove_{shift_key}'):
+                        if st.button(f"❌ Remove", key=f'remove_{shift_key}'):
                             try:
                                 del st.session_state.shift_config[shift_key]
                                 st.rerun()
@@ -255,11 +285,18 @@ def configure_shifts():
                 
                 # Only update if valid
                 if is_valid:
-                    st.session_state.shift_config[shift_key] = {
+                    # Update the shift configuration while preserving role_staff data
+                    updated_shift = {
                         'name': name,
                         'start': start,
-                        'end': end
+                        'end': end,
+                        'staff': shift_data.get('staff', 2),  # Keep default staff
+                        'role_staff': shift_data.get('role_staff', {})  # Preserve role staff counts
                     }
+                    st.session_state.shift_config[shift_key] = updated_shift
+                
+                # Add a separator between shifts
+                st.markdown("---")
         
         # Always show the add button at the bottom
         with button_container:
@@ -275,10 +312,17 @@ def configure_shifts():
                     
                     new_shift_name = f'Shift {next_num}'
                     
+                    # Initialize with role_staff for all existing roles
+                    role_staff = {}
+                    for role_key in st.session_state.roles_config:
+                        role_staff[role_key] = 1  # Default staff count per role
+                    
                     st.session_state.shift_config[f'Shift {next_num}'] = {
                         'name': new_shift_name,
                         'start': 0,
-                        'end': 8
+                        'end': 8,
+                        'staff': 2,  # Default staff count
+                        'role_staff': role_staff  # Add role-specific staff counts
                     }
                     
                     # Initialize availability for the new shift for all employees
@@ -410,11 +454,25 @@ def assign_shifts(row):
 
 ##################################################################################################################################################################################################################################################
 
+def assign_shifts(row):
+    """Assign shift label based on hour and configured shifts."""
+    try:
+        hour = row['hour']
+        for shift in st.session_state.shift_config.values():
+            if shift['start'] <= hour < shift['end']:
+                return shift['name']
+        return 'Other'
+    except Exception as e:
+        st.error(f"Error assigning shifts: {str(e)}")
+        return 'Unknown'
+
+##################################################################################################################################################################################################################################################
+
 def plot_weekly_schedule_with_availability(df, availability):
     """
     Generate optimized schedule considering:
     - Shift configurations (start/end times)
-    - Role requirements (staff per role from staff_config)
+    - Role requirements (staff per role from shift's role_staff)
     - Employee availability (days, shifts, roles, max shifts)
     - Employee efficiency in specific shifts (for optimized roles)
     - Equal distribution of shifts (for non-optimized roles)
@@ -498,8 +556,11 @@ def plot_weekly_schedule_with_availability(df, availability):
             
             # Get role requirements for this shift
             for role_key, role_data in st.session_state.roles_config.items():
-                # Get staff count from staff_config instead of role_data
-                required_staff = st.session_state.staff_config.get(role_key, 1)
+                # Get staff count from shift's role_staff configuration
+                required_staff = 0
+                if 'role_staff' in shift_config and role_key in shift_config['role_staff']:
+                    required_staff = shift_config['role_staff'].get(role_key, 0)
+                
                 if required_staff <= 0:
                     continue  # Skip roles with no staff requirement
                 
@@ -627,7 +688,7 @@ def plot_weekly_schedule_with_availability(df, availability):
 ##################################################################################################################################################################################################################################################
 
 # Helper function to calculate efficiency scores for a shift
-# Modified function to calculate shift efficiency scores with average sales per shift
+# Helper function to calculate efficiency scores for a shift
 def calculate_shift_efficiency_scores(shift_data):
     """Calculate efficiency scores for employees in a specific shift."""
     if shift_data.empty:
