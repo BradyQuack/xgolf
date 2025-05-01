@@ -1373,98 +1373,81 @@ try:
     uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
 
     # Add Instructions expander
-    with st.expander("📘 Instructions", expanded=True):
+    with st.expander("📘 Step-by-Step Instructions", expanded=True):
         st.markdown("""
-        ### 🛠️ How to Use
-        """)
+        ## 🚀 Getting Started
         
-        # Workflow step selector
-        step_choice = st.selectbox(
-            "Select a workflow step:",
-            options=[
-                "1. Data Upload",
-                "2. Configure Roles",
-                "3. Configure Shifts",
-                "4. Set Employee Availability"
-            ],
-            index=0,
-            key="workflow_selector"
-        )
-
-        # Workflow instructions dictionary
-        workflow_steps = {
-            "1. Data Upload": {
-                "content": """
-                **📤 Data Preparation & Upload**
-                1. Export monthly sales data from Square POS:
-                   - Select Reports → Exports → Item Sales
-                   - Choose CSV format
-                2. Ensure file contains:
-                   - Date
-                   - Time
-                   - Gross Sales
-                   - Employee
-                3. Upload via "Browse files" button
-                4. Automatic processing validates & structures data
-                
-                *💡 Pro Tip: Use last 3 months' data for best optimization results*""",
-                "icon": "📤"
-            },
-            "2. Configure Roles": {
-                "content": f"""
-                **👥 Role Configuration (Sidebar)**
-                1. Access role settings in left sidebar
-                2. For each role:
-                   - Name (e.g., Bartender, Server)
-                   - Color coding
-                   - Optimization toggle:
-                     ✅ Enabled: Prioritize top performers
-                     ⚠️ Disabled: Equal shift distribution
-                3. Set minimum staff per role
-                4. Add/remove roles as needed
-                
-                *Current Active Roles: {len(st.session_state.roles_config)} configured*""",
-                "icon": "👥"
-            },
-            "3. Configure Shifts": {
-                "content": f"""
-                **⏰ Shift Setup (Sidebar)**
-                1. Default shifts:
-                   - {st.session_state.shift_config['Shift 1']['name']}: {st.session_state.shift_config['Shift 1']['start']}-{st.session_state.shift_config['Shift 1']['end']}
-                   - {st.session_state.shift_config['Shift 2']['name']}: {st.session_state.shift_config['Shift 2']['start']}-{st.session_state.shift_config['Shift 2']['end']}
-                2. Customize:
-                   - Start/end times
-                   - Shift names
-                   - Role-specific staffing
-                3. Prevent overlaps with real-time validation
-                4. Add unlimited shifts with ➕ button
-                
-                *💡 Pro Tip: Align shifts with sales peaks from heatmaps*""",
-                "icon": "⏰"
-            },
-            "4. Set Employee Availability": {
-                "content": """
-                **👤 Employee Preferences**
-                1. Set per-employee:
-                   - Max shifts/week (1-7)
-                   - Available days
-                   - Shift preferences
-                   - Role capabilities
-                2. Auto-saves to session
-                3. Visual conflict detection
-                4. Combine with performance data
-                
-                *System tracks: 5 availability dimensions per employee*""",
-                "icon": "👤"
-            }
-        }
-
-        # Display selected step
-        selected_step = workflow_steps[step_choice]
-        st.markdown(f"""
-        {selected_step['icon']} **{step_choice.split('. ')[1]}**  
-        {selected_step['content']}
-        """)
+        ### 1. 📤 Data Upload
+        **Essential CSV Requirements:**
+        - Must contain columns:  
+          - `Date` (MM/DD/YYYY)  
+          - `Time` (HH:MM:SS)  
+          - `Gross Sales` (currency)  
+          - `Employee` (full names)  
+        - Export directly from Square POS → Reports → Exports → Item Sales
+        
+        *Pro Tip: Upload 3+ months of data for optimal pattern recognition*
+        
+        ---
+        ### 2. 👥 Role Configuration
+        **Key Settings (Sidebar):**  
+        - **Role Types:**  
+          • Name (e.g., "Bartender")  
+          • Color coding for schedules  
+          • Optimization toggle:  
+            → ✅ Enabled: AI prioritizes top performers  
+            → ⚠️ Disabled: Equal shift distribution  
+        - **Staff Requirements:**  
+          • Minimum employees per role  
+          • Max role overlaps  
+        
+        *System Trackers:*  
+        • Currently active roles: **{len(st.session_state.roles_config)}**  
+        • Staff changes saved automatically
+        
+        ---
+        ### 3. ⏰ Shift Setup
+        **Default Configuration:**  
+        - **{st.session_state.shift_config['Shift 1']['name']}:**  
+          {st.session_state.shift_config['Shift 1']['start']}-{st.session_state.shift_config['Shift 1']['end']}  
+        - **{st.session_state.shift_config['Shift 2']['name']}:**  
+          {st.session_state.shift_config['Shift 2']['start']}-{st.session_state.shift_config['Shift 2']['end']}  
+        
+        **Customization Options:**  
+        1. Add/remove shifts with ➕/❌ buttons  
+        2. Set role-specific staffing needs  
+        3. Real-time overlap detection  
+        4. Shift importance weighting  
+        
+        *Pro Tip: Align shifts with sales peaks from heatmap analysis*
+        
+        ---
+        ### 4. 👤 Employee Availability
+        **Per-Employee Settings:**  
+        - **Shift Capacity:**  
+          • Max shifts/week (1-7)  
+          • Blackout dates  
+        - **Preferences:**  
+          • Available days  
+          • Shift type preferences  
+          • Role capabilities  
+        - **Performance:**  
+          • Efficiency score thresholds  
+          • Training status  
+        
+        *System Features:*  
+        • 5-dimensional availability tracking  
+        • Auto-save to session state  
+        • Visual conflict alerts  
+        """.format(
+            len(st.session_state.roles_config),
+            st.session_state.shift_config['Shift 1']['name'],
+            st.session_state.shift_config['Shift 1']['start'],
+            st.session_state.shift_config['Shift 1']['end'],
+            st.session_state.shift_config['Shift 2']['name'],
+            st.session_state.shift_config['Shift 2']['start'],
+            st.session_state.shift_config['Shift 2']['end']
+        ))
 
     
 
