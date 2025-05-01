@@ -1478,7 +1478,7 @@ try:
         - **Skill development** via role capability tracking
         """)
 
-    
+    df = None    
 
     if uploaded_file:
         # Load and process data with caching
