@@ -1372,111 +1372,103 @@ try:
     st.title("📈 AI Shift Optimization Dashboard")
     uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
 
-    # Add Instructions expander
-    with st.expander("🚀 Getting Started: Instructions", expanded=False):
-        # Precompute values
-        num_roles = len(st.session_state.roles_config)
-        shift1_name = st.session_state.shift_config['Shift 1']['name']
-        shift1_start = st.session_state.shift_config['Shift 1']['start']
-        shift1_end = st.session_state.shift_config['Shift 1']['end']
-        shift2_name = st.session_state.shift_config['Shift 2']['name']
-        shift2_start = st.session_state.shift_config['Shift 2']['start']
-        shift2_end = st.session_state.shift_config['Shift 2']['end']
+    # Create two columns
+    col1, col2 = st.columns([1, 1], gap="large")
 
-        st.markdown(f"""
-        ### 1. 📤 Data Upload
-        **Essential CSV Requirements:**
-        - Must contain columns:  
-          - `Date` (MM/DD/YYYY)  
-          - `Time` (HH:MM:SS)  
-          - `Gross Sales` (currency)  
-          - `Employee` (full names)  
-        
-        *Pro Tip: Upload 3+ months of data for optimal pattern recognition*
-        
-        ---
-        ### 2. 👥 Role Configuration
-        **Key Settings (Sidebar):**  
-        - **Role Types:**  
-          • Name ("Bartender")  
-          • Optimization toggle:  
-            → ✅ Enabled: AI prioritizes top performers  
-            → ⚠️ Disabled: Equal shift distribution  
-        - **Staff Requirements:**  
-          • Minimum employees per role  
-          • Max role overlaps   
-          • Staff changes saved automatically
-        
-        ---
-        ### 3. ⏰ Shift Setup
-        **Default Configuration:**  
-        - **{shift1_name}:**  
-          {shift1_start}-{shift1_end}  
-        - **{shift2_name}:**  
-          {shift2_start}-{shift2_end}  
-        
-        **Customization Options:**  
-        1. Add/remove shifts with ➕/❌ buttons  
-        2. Set role-specific staffing needs  
-        3. Real-time overlap detection  
-        4. Shift importance weighting  
-        
-        *Pro Tip: Align shifts with sales peaks from heatmap analysis*
-        
-        ---
-        ### 4. 👤 Employee Availability
-        **Per-Employee Settings:**  
-        - **Shift Capacity:**  
-          • Max shifts/week (1-7)  
-          • Blackout dates  
-        - **Preferences:**  
-          • Available days  
-          • Shift type preferences  
-          • Role capabilities  
-        - **Performance:**  
-          • Efficiency score thresholds  
-          • Training status  
-        
-        *System Features:*  
-        • 5-dimensional availability tracking  
-        • Auto-save to session state  
-        • Visual conflict alerts  
-        """)
+    with col1:
+        with st.expander("🚀 Getting Started: Instructions", expanded=False):
+            # [Keep all existing instruction content unchanged...]
+            st.markdown(f"""
+            ### 1. 📤 Data Upload
+            **Essential CSV Requirements:**
+            - Must contain columns:  
+              - `Date` (MM/DD/YYYY)  
+              - `Time` (HH:MM:SS)  
+              - `Gross Sales` (currency)  
+              - `Employee` (full names)  
+            
+            *Pro Tip: Upload 3+ months of data for optimal pattern recognition*
+            
+            ---
+            ### 2. 👥 Role Configuration
+            **Key Settings (Sidebar):**  
+            - **Role Types:**  
+              • Name ("Bartender")  
+              • Optimization toggle:  
+                → ✅ Enabled: AI prioritizes top performers  
+                → ⚠️ Disabled: Equal shift distribution  
+            - **Staff Requirements:**  
+              • Minimum employees per role  
+              • Max role overlaps   
+              • Staff changes saved automatically
+            
+            ---
+            ### 3. ⏰ Shift Setup
+            **Default Configuration:**  
+            - **{shift1_name}:**  
+              {shift1_start}-{shift1_end}  
+            - **{shift2_name}:**  
+              {shift2_start}-{shift2_end}  
+            
+            **Customization Options:**  
+            1. Add/remove shifts with ➕/❌ buttons  
+            2. Set role-specific staffing needs  
+            3. Real-time overlap detection  
+            4. Shift importance weighting  
+            
+            *Pro Tip: Align shifts with sales peaks from heatmap analysis*
+            
+            ---
+            ### 4. 👤 Employee Availability
+            **Per-Employee Settings:**  
+            - **Shift Capacity:**  
+              • Max shifts/week (1-7)  
+              • Blackout dates  
+            - **Preferences:**  
+              • Available days  
+              • Shift type preferences  
+              • Role capabilities  
+            - **Performance:**  
+              • Efficiency score thresholds  
+              • Training status  
+            
+            *System Features:*  
+            • 5-dimensional availability tracking  
+            • Auto-save to session state  
+            • Visual conflict alerts  
+            """)
 
-    with st.expander("🚀 Optimization Benefits", expanded=False):
-        # Precompute values from session state
-        num_roles = len(st.session_state.roles_config)
-        num_shifts = len(st.session_state.shift_config)
-        
-        st.markdown(f"""
-        ## 💡 Key Advantages
-        
-        ### 📈 Revenue Impact
-        - **+15-25% sales potential** through peak shift optimization
-        - **Top performer alignment** with highest-grossing hours
-        - **Waste reduction** via demand-pattern staffing
+    with col2:
+        with st.expander("🚀 Optimization Benefits", expanded=False):
+            st.markdown(f"""
+            ## 💡 Key Advantages
+            
+            ### 📈 Revenue Impact
+            - **+15-25% sales potential** through peak shift optimization
+            - **Top performer alignment** with highest-grossing hours
+            - **Waste reduction** via demand-pattern staffing
 
-        ### 📊 Data-Driven Decisions
-        - **Historical pattern analysis** ({num_shifts} shifts configured)
-        - **Real-time conflict detection**
-        - **Performance-based role assignments**
+            ### 📊 Data-Driven Decisions
+            - **Historical pattern analysis** ({num_shifts} shifts configured)
+            - **Real-time conflict detection**
+            - **Performance-based role assignments**
 
-        ### ⚖️ Fair Scheduling
-        - **Equitable shift distribution** across {num_roles} roles
-        - **Bias prevention** through AI-driven assignments
-        - **Workload balance** alerts via employee capacity tracking
-        
-        ### 💰 Cost Efficiency
-        - **20% labor cost reduction** through:
-          - Overstaffing prevention
-          - Shift length optimization
-          - Role-specific staffing
-        
-        ### 🧑💼 Employee Experience
-        - **Preference-aware scheduling**
-        - **Burnout prevention** through shift caps
-        - **Skill development** via role capability tracking
-        """)
+            ### ⚖️ Fair Scheduling
+            - **Equitable shift distribution** across {num_roles} roles
+            - **Bias prevention** through AI-driven assignments
+            - **Workload balance** alerts via employee capacity tracking
+            
+            ### 💰 Cost Efficiency
+            - **20% labor cost reduction** through:
+              - Overstaffing prevention
+              - Shift length optimization
+              - Role-specific staffing
+            
+            ### 🧑💼 Employee Experience
+            - **Preference-aware scheduling**
+            - **Burnout prevention** through shift caps
+            - **Skill development** via role capability tracking
+            """)
 
     df = None    
 
