@@ -1424,8 +1424,6 @@ try:
             3. Real-time overlap detection  
             4. Shift importance weighting  
             
-            *Pro Tip: Align shifts with sales peaks from heatmap analysis*
-            
             ---
             ### 4. 👤 Employee Availability
             **Per-Employee Settings:**  
@@ -1451,7 +1449,7 @@ try:
             # Precompute values from session state
             num_roles = len(st.session_state.roles_config)
             num_shifts = len(st.session_state.shift_config)
-            
+
             st.markdown(f"""
             ## 💡 Key Advantages
             
