@@ -1037,7 +1037,7 @@ def generate_shift_analysis_rotated(df):
         # First create the heatmap without annotations
         hm = sns.heatmap(
             shift_summary_rotated,
-            cmap=['white'],
+            cmap='Greens',
             linewidths=0.5,
             linecolor='gray',
             cbar_kws={'label': 'Gross Sales ($)'},
@@ -1795,7 +1795,7 @@ try:
     - **Trend Insight:** Identify burnout risks  
     - **Coverage Planning:** Balance experience distribution  
     
-    *Pro Tip: Green cells indicate frequent shift workers*  
+    *Pro Tip: Use this data to balance shift distribution and prevent employee burnout.*  
     """)          
 
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
