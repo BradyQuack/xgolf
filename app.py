@@ -301,8 +301,8 @@ def get_employee_availability(df):
                     )
 
                 # Days multiselect
+                st.write("**Available Days**")
                 days = st.multiselect(
-                    "Available Days",
                     options=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
                     default=st.session_state.availability[emp]['days'],
                     key=f"{emp}_days"
