@@ -1479,11 +1479,14 @@ try:
             st.pyplot(fig1)
 
             st.markdown("""
-            **🔍 Analysis Breakdown:**  
-            - **Purpose:** Identify hourly sales patterns and peak revenue periods  
-            - **Key Metrics:** Gross sales ($) aggregated by hour and weekday  
-            - **Business Impact:** Optimize staffing during high-value periods  
-            """)
+    **🔍 Analysis Breakdown:**  
+    - **Purpose:** Identify hourly sales patterns and peak revenue periods  
+    - **Key Metrics:** Gross sales ($) aggregated by hour and weekday  
+    - **Business Impact:** Optimize staffing during high-value periods  
+    - **Color Coding:** Darker greens → higher sales  
+    
+    *Pro Tip: Cross-reference with Shift Configuration to align staff coverage with revenue peaks*  
+    """)
 
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -1500,6 +1503,8 @@ try:
     - **Key Metrics:** Total sales per configured shift  
     - **Business Impact:** Validate shift timing effectiveness  
     - **Comparison:** Direct morning vs evening shift revenue analysis  
+    
+    *Pro Tip: Use this to justify shift timing adjustments to management*  
     """)
 
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -1554,6 +1559,8 @@ try:
     - **Key Metric:** Gross sales ($) per employee  
     - **Business Impact:** Recognize high-value staff  
     - **Optimization:** Prioritize top performers for peak shifts  
+    
+    *Pro Tip: Combine with availability data for optimal scheduling*  
     """)
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -1691,9 +1698,9 @@ try:
                     st.pyplot(fig5)
 
                     st.markdown(f"""
-        **🔍 {shift_name} Performance:**  
+        **🔍 {morning_shift} Performance:**  
         - **Purpose:** Identify shift-specific superstars  
-        - **Key Metric:** Gross sales during {shift_name}  
+        - **Key Metric:** Gross sales during {morning_shift}  
         - **Scheduling Impact:** Match performers to optimal shifts  
         - **Pattern Recognition:** Reveal time-of-day strengths  
         
@@ -1758,9 +1765,9 @@ try:
                     st.pyplot(fig6)
 
                     st.markdown(f"""
-        **🔍 {shift_name} Performance:**  
+        **🔍 {evening_shift} Performance:**  
         - **Purpose:** Identify shift-specific superstars  
-        - **Key Metric:** Gross sales during {shift_name}  
+        - **Key Metric:** Gross sales during {evening_shift}  
         - **Scheduling Impact:** Match performers to optimal shifts  
         - **Pattern Recognition:** Reveal time-of-day strengths  
         
