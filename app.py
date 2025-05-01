@@ -1478,6 +1478,13 @@ try:
             ax1.set_title('Sales by Weekday and Hour', fontsize=16, fontweight='bold')
             st.pyplot(fig1)
 
+            st.markdown("""
+            **🔍 Analysis Breakdown:**  
+            - **Purpose:** Identify hourly sales patterns and peak revenue periods  
+            - **Key Metrics:** Gross sales ($) aggregated by hour and weekday  
+            - **Business Impact:** Optimize staffing during high-value periods  
+            """)
+
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
         # === VISUALIZATION 2: SHIFT efficiency ANALYSIS (COLLAPSIBLE) ===
@@ -1486,6 +1493,14 @@ try:
             shift_summary = generate_shift_analysis(df)
             rotated_shift_fig = generate_shift_analysis_rotated(df)
             st.pyplot(rotated_shift_fig)
+
+            st.markdown("""
+    **🔍 Shift Efficiency Breakdown:**  
+    - **Purpose:** Compare shift performance across days  
+    - **Key Metrics:** Total sales per configured shift  
+    - **Business Impact:** Validate shift timing effectiveness  
+    - **Comparison:** Direct morning vs evening shift revenue analysis  
+    """)
 
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -1533,13 +1548,33 @@ try:
             
             st.pyplot(fig3)
 
+             st.markdown("""
+    **🔍 Top Performer Analysis:**  
+    - **Purpose:** Identify revenue generation leaders  
+    - **Key Metric:** Gross sales ($) per employee  
+    - **Business Impact:** Recognize high-value staff  
+    - **Optimization:** Prioritize top performers for peak shifts  
+    """)
+        #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+        # === VISUALIZATION 4: AVERAGE SALE PER Shift (COLLAPSIBLE) ===
         with st.expander("💰 Average Sales per Shift by Employee", expanded=False):
             avg_sales_per_shift_fig = plot_avg_sales_per_shift(df)
             st.pyplot(avg_sales_per_shift_fig) 
+
+            st.markdown("""
+    **🔍 Shift Productivity Analysis:**  
+    - **Purpose:** Measure true shift efficiency  
+    - **New Metric:** (Total sales) / (Shifts worked)  
+    - **Benefit:** Eliminates shift frequency bias  
+    - **Strategic Value:** Identifies consistently productive staff  
+    
+    *Pro Tip: Use this to identify underutilized high performers*  
+    """)
         
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-        # === VISUALIZATION 4: AVERAGE SALE PER TRANSACTION (COLLAPSIBLE) ===
+        # === VISUALIZATION 5: AVERAGE SALE PER TRANSACTION (COLLAPSIBLE) ===
         with st.expander("💰 Average Sale per Transaction by Employee", expanded=False):
             # Calculate average sale per transaction for each employee
             avg_sales = df.groupby('employee').agg({
@@ -1589,13 +1624,23 @@ try:
                 tick.label1.set_fontweight('bold')
             
             st.pyplot(fig4)
+
+            st.markdown("""
+    **🔍 Upselling Effectiveness:**  
+    - **Purpose:** Evaluate premium service capabilities  
+    - **Key Metric:** Average transaction value ($)  
+    - **Training Insight:** Identify coaching opportunities  
+    - **VIP Impact:** Staff selection for high-value customers  
+    
+    *Pro Tip: Pair top performers with new hires for mentoring*  
+    """)
         
         # Analyze shift-specific efficiency
         employee_shift_stats = analyze_employee_shift_efficiency(df)
         
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-        # === VISUALIZATION 5: TOTAL SALES BY EMPLOYEE - MORNING SHIFT (COLLAPSIBLE) ===
+        # === VISUALIZATION 6: TOTAL SALES BY EMPLOYEE - MORNING SHIFT (COLLAPSIBLE) ===
         morning_shift = st.session_state.shift_config['Shift 1']['name']
         with st.expander(f"👥 Total Sales by Employee - {morning_shift}", expanded=False):
             # Filter for Morning Shift
@@ -1644,6 +1689,17 @@ try:
                         tick.label1.set_fontweight('bold')
                     
                     st.pyplot(fig5)
+
+                    st.markdown(f"""
+        **🔍 {shift_name} Performance:**  
+        - **Purpose:** Identify shift-specific superstars  
+        - **Key Metric:** Gross sales during {shift_name}  
+        - **Scheduling Impact:** Match performers to optimal shifts  
+        - **Pattern Recognition:** Reveal time-of-day strengths  
+        
+        *Pro Tip: Use this to create specialized shift teams*  
+        """)
+
                 else:
                     st.info(f"No data available for {morning_shift}")
             except Exception as e:
@@ -1651,7 +1707,7 @@ try:
         
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-        # === VISUALIZATION 6: TOTAL SALES BY EMPLOYEE - EVENING SHIFT (COLLAPSIBLE) ===
+        # === VISUALIZATION 7: TOTAL SALES BY EMPLOYEE - EVENING SHIFT (COLLAPSIBLE) ===
         evening_shift = st.session_state.shift_config['Shift 2']['name']
         with st.expander(f"👥 Total Sales by Employee - {evening_shift}", expanded=False):
             # Filter for Evening Shift
@@ -1700,6 +1756,17 @@ try:
                         ax6.text(v + (max_value * 0.02), i, f"${v:,.0f}", va='center', fontweight='bold')
                     
                     st.pyplot(fig6)
+
+                    st.markdown(f"""
+        **🔍 {shift_name} Performance:**  
+        - **Purpose:** Identify shift-specific superstars  
+        - **Key Metric:** Gross sales during {shift_name}  
+        - **Scheduling Impact:** Match performers to optimal shifts  
+        - **Pattern Recognition:** Reveal time-of-day strengths  
+        
+        *Pro Tip: Use this to create specialized shift teams*  
+        """)
+
                 else:
                     st.info(f"No data available for {evening_shift}")
             except Exception as e:
@@ -1708,31 +1775,71 @@ try:
         
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-        # === VISUALIZATION 7: Employee Shift History ===
+        # === VISUALIZATION 8: Employee Shift History ===
         # Add this to your app after the Shift efficiency Analysis section:
         with st.expander("👥 Employee Shift History", expanded=False):
             shift_count_fig = plot_employee_shift_type_count(df)
-            st.pyplot(shift_count_fig)              
+            st.pyplot(shift_count_fig)    
+
+            st.markdown("""
+    **🔍 Shift Participation Analysis:**  
+    - **Purpose:** Track employee availability patterns  
+    - **Key Metric:** Number of shifts worked  
+    - **Trend Insight:** Identify burnout risks  
+    - **Coverage Planning:** Balance experience distribution  
+    
+    *Pro Tip: Green cells indicate frequent shift workers*  
+    """)          
 
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-        # === VISUALIZATION 8: Employee 1st Shift Efficiency - Ranked ===
+        # === VISUALIZATION 9: Employee 1st Shift Efficiency - Ranked ===
         with st.expander("🏆 Employee 1st Shift Efficiency - Ranked", expanded=False):
             morning_shift = st.session_state.shift_config['Shift 1']['name']
             morning_score_fig = plot_simplified_employee_morning_score(df)
             if morning_score_fig:
                 st.pyplot(morning_score_fig)
+
+                st.markdown(f"""
+        **🔍 Efficiency Scoring System:**  
+        - **Metrics Combined:**  
+          1. Total sales  
+          2. Average transaction value  
+          3. Shifts worked  
+          4. Sales per shift  
+        - **Scoring:** 4-3-2-1 weighted ranking  
+        - **Color Coding:** Darker greens = higher efficiency  
+        
+        *Pro Tip: Top 3 scorers get priority for premium shifts*  
+        """)
+
             else:
                 st.info("No morning shift data available for scoring")
 
+
+
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-        # === VISUALIZATION 9: Employee 2nd Shift Efficiency - Ranked ===
+        # === VISUALIZATION 10: Employee 2nd Shift Efficiency - Ranked ===
         with st.expander("🏆 Employee 2nd Shift Efficiency - Ranked", expanded=False):
             evening_shift = st.session_state.shift_config['Shift 2']['name']
             evening_score_fig = plot_simplified_employee_evening_score(df)
             if evening_score_fig:
                 st.pyplot(evening_score_fig)
+
+                st.markdown(f"""
+        **🔍 Efficiency Scoring System:**  
+        - **Metrics Combined:**  
+          1. Total sales  
+          2. Average transaction value  
+          3. Shifts worked  
+          4. Sales per shift  
+        - **Scoring:** 4-3-2-1 weighted ranking  
+        - **Color Coding:** Darker greens = higher efficiency  
+        
+        *Pro Tip: Top 3 scorers get priority for premium shifts*  
+        """)
+                
             else:
                 st.info("No evening shift data available for scoring")
 
