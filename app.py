@@ -946,7 +946,7 @@ def plot_employee_shift_type_count(df):
         # Create the heatmap with numeric data for colors
         hm = sns.heatmap(
             numeric_data,
-            cmap='Greens',
+            cmap=['white'],
             linewidths=0.5,
             linecolor='gray',
             cbar_kws={'label': 'Unique Employees'},
@@ -1839,7 +1839,7 @@ try:
         
         *Pro Tip: Top 3 scorers get priority for premium shifts*  
         """)
-                
+
             else:
                 st.info("No evening shift data available for scoring")
 
