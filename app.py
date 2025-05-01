@@ -1548,7 +1548,7 @@ try:
             
             st.pyplot(fig3)
 
-             st.markdown("""
+            st.markdown("""
     **🔍 Top Performer Analysis:**  
     - **Purpose:** Identify revenue generation leaders  
     - **Key Metric:** Gross sales ($) per employee  
