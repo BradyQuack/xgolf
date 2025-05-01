@@ -332,16 +332,17 @@ def get_employee_availability(df):
                 # Role preference checkboxes
                 st.write("**Role Preferences**")
                 role_prefs = {}
-                for role in st.session_state.roles_config:
-                    role_prefs[role] = st.checkbox(
-                        role,
-                        value=st.session_state.availability[emp]['roles'].get(role, True),
-                        key=f"{emp}_{role}"
+                for role_key, role_data in st.session_state.roles_config.items():
+                    role_prefs[role_key] = st.checkbox(
+                        role_key,
+                        value=st.session_state.availability[emp]['roles'].get(role_key, True),
+                        key=f"{emp}_{role_key}"
                     )
 
                 # Days multiselect
+                st.write("**Available Days**")
                 days = st.multiselect(
-                    "Available Days",
+                    "Days",
                     options=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
                     default=st.session_state.availability[emp]['days'],
                     key=f"{emp}_days"
@@ -355,8 +356,8 @@ def get_employee_availability(df):
                 if (days != st.session_state.availability[emp]['days'] or 
                     any(shift_prefs[shift['name']] != st.session_state.availability[emp]['shifts'].get(shift['name'], True)
                     for shift in st.session_state.shift_config.values()) or
-                    any(role_prefs[role] != st.session_state.availability[emp]['roles'].get(role, True)
-                    for role in st.session_state.roles_config) or
+                    any(role_prefs[role_key] != st.session_state.availability[emp]['roles'].get(role_key, True)
+                    for role_key in st.session_state.roles_config) or
                     max_shifts != st.session_state.availability[emp].get('max_shifts', 5)):
                     
                     st.session_state.availability[emp] = {
@@ -389,16 +390,14 @@ def assign_shifts(row):
 
 ##################################################################################################################################################################################################################################################
 
-# Don't cache this function as we need fresh results each time
 def plot_weekly_schedule_with_availability(df, availability):
     """
     Generate optimized schedule considering:
-    - Shift configurations (start/end times, staff requirements)
-    - Employee availability (days, shifts, max shifts)
-    - Employee efficiency in specific shifts (using the same scoring system as the shift efficiency visualizations)
+    - Shift configurations (start/end times)
+    - Role requirements (staff per role)
+    - Employee availability (days, shifts, roles, max shifts)
+    - Employee efficiency in specific shifts
     - Shift sales (higher revenue shifts prioritized)
-    - Ensures exactly required staff per shift
-    - Prevents duplicate assignments
     """
     try:
         # Set up weekday order
@@ -416,14 +415,12 @@ def plot_weekly_schedule_with_availability(df, availability):
         morning_data = df[df['shift_type'] == morning_shift]
         evening_data = df[df['shift_type'] == evening_shift]
         
-        # Calculate efficiency scores for morning shift using the same logic as plot_simplified_employee_morning_score
+        # Calculate efficiency scores for shifts
         morning_scores = calculate_shift_efficiency_scores(morning_data)
-        
-        # Calculate efficiency scores for evening shift using the same logic as plot_simplified_employee_evening_score
         evening_scores = calculate_shift_efficiency_scores(evening_data)
         
-        # Process shift data - get CURRENT shift config
-        current_shifts = list(st.session_state.shift_config.values())  # Get fresh shift list
+        # Process shift data
+        current_shifts = list(st.session_state.shift_config.values())
         
         # Calculate shift importance based on historical sales
         shift_importance = {}
@@ -432,15 +429,24 @@ def plot_weekly_schedule_with_availability(df, availability):
             shift_sales = df[df['hour'].isin(shift_hours)].groupby('weekday')['gross_sales'].sum()
             shift_importance[shift['name']] = shift_sales.reindex(weekday_order, fill_value=0)
         
-        # Ensure all shifts have an importance value, even if no historical data
+        # Ensure all shifts have an importance value
         for shift in current_shifts:
             if shift['name'] not in shift_importance:
                 shift_importance[shift['name']] = pd.Series(0, index=weekday_order)
         
-        # Create scheduling structures using current shifts
-        schedule = pd.DataFrame(index=weekday_order)
-        for shift in current_shifts:  # Ensure all shifts are represented
-            schedule[shift['name']] = ''
+        # Create scheduling structures
+        schedule = {}
+        for day in weekday_order:
+            schedule[day] = {}
+            for shift in current_shifts:
+                schedule[day][shift['name']] = {}
+                for role_key in st.session_state.roles_config:
+                    schedule[day][shift['name']][role_key] = []
+        
+        # Display schedule DataFrame
+        display_schedule = pd.DataFrame(index=weekday_order)
+        for shift in current_shifts:
+            display_schedule[shift['name']] = ''
         
         # Create prioritized shift queue (highest sales first)
         shift_queue = []
@@ -448,10 +454,10 @@ def plot_weekly_schedule_with_availability(df, availability):
             for shift_name, shift_data in shift_importance.items():
                 shift_queue.append((day, shift_name, shift_data[day]))
         
-        # Sort by sales descending (most important shifts first)
+        # Sort by sales descending
         shift_queue.sort(key=lambda x: -x[2])
         
-        # Initialize employee assignments and shift assignments
+        # Initialize employee assignments
         employee_assignments = {}
         if morning_scores is not None:
             for emp in morning_scores.index:
@@ -462,79 +468,82 @@ def plot_weekly_schedule_with_availability(df, availability):
             for emp in evening_scores.index:
                 if emp not in employee_assignments:
                     employee_assignments[emp] = []
-                    
-        shift_assignments = {day: {shift['name']: [] for shift in current_shifts} 
-                            for day in weekday_order}
         
-        # Assign employees to shifts based on efficiency scores and availability
+        # Assign employees to shifts and roles
         for day, shift_name, _ in shift_queue:
             shift_config = next((s for s in current_shifts if s['name'] == shift_name), None)
             if not shift_config:
                 continue
+            
+            # Get role requirements for this shift
+            for role_key, role_data in st.session_state.roles_config.items():
+                required_staff = role_data['staff']
+                if required_staff <= 0:
+                    continue  # Skip roles with no staff requirement
                 
-            required_staff = shift_config.get('employees', 1)
-            current_staff = shift_assignments[day][shift_name]
-            
-            # Skip if shift already fully staffed
-            if len(current_staff) >= required_staff:
-                continue
-            
-            # Select the appropriate efficiency scores based on shift type
-            if shift_name == morning_shift and morning_scores is not None:
-                efficiency_scores = morning_scores
-            elif shift_name == evening_shift and evening_scores is not None:
-                efficiency_scores = evening_scores
-            else:
-                # Fallback to overall sales if no specific shift scores available
-                efficiency_scores = df.groupby('employee')['gross_sales'].sum().sort_values(ascending=False)
-            
-            # Find qualified employees with availability for THIS shift
-            available_employees = []
-            for emp in efficiency_scores.index:
-                if emp in availability and (
-                    day in availability[emp]['days'] and
-                    availability[emp]['shifts'].get(shift_name, False) and  # Explicit check
-                    len(employee_assignments[emp]) < availability[emp].get('max_shifts', 2) and
-                    emp not in shift_assignments[day][shift_name] and
-                    not any(a['day'] == day for a in employee_assignments[emp])
-                ):
-                    available_employees.append(emp)
-            
-            # Sort available employees by efficiency score (descending)
-            # This ensures top performers for each specific shift are prioritized
-            available_employees.sort(key=lambda x: efficiency_scores.loc[x], reverse=True)
-            
-            # Assign needed staff (respecting required_staff)
-            needed = required_staff - len(current_staff)
-            for emp in available_employees[:needed]:
-                assignment = {
-                    'day': day,
-                    'shift': shift_name,
-                    'hours': shift_config['end'] - shift_config['start']
-                }
-                employee_assignments[emp].append(assignment)
-                shift_assignments[day][shift_name].append(emp)
+                current_staff = schedule[day][shift_name][role_key]
                 
-                # Format display
-                current_cell = schedule.at[day, shift_name]
-                # Get employee's score for this shift
-                score = efficiency_scores.loc[emp] if emp in efficiency_scores.index else 0
-                emp_display = f"{emp}\n  Score: {score:.0f}"
-                schedule.at[day, shift_name] = f"{current_cell}\n\n{emp_display}".strip() if current_cell else emp_display
+                # Skip if role already fully staffed
+                if len(current_staff) >= required_staff:
+                    continue
+                
+                # Select the appropriate efficiency scores based on shift type
+                if shift_name == morning_shift and morning_scores is not None:
+                    efficiency_scores = morning_scores
+                elif shift_name == evening_shift and evening_scores is not None:
+                    efficiency_scores = evening_scores
+                else:
+                    # Fallback to overall sales
+                    efficiency_scores = df.groupby('employee')['gross_sales'].sum().sort_values(ascending=False)
+                
+                # Find qualified employees with availability for THIS shift AND role
+                available_employees = []
+                for emp in efficiency_scores.index:
+                    if emp in availability and (
+                        day in availability[emp]['days'] and
+                        availability[emp]['shifts'].get(shift_name, False) and
+                        availability[emp]['roles'].get(role_key, False) and  # Check role preference
+                        len(employee_assignments[emp]) < availability[emp].get('max_shifts', 2) and
+                        emp not in current_staff and
+                        not any(a['day'] == day for a in employee_assignments[emp])
+                    ):
+                        available_employees.append(emp)
+                
+                # Sort available employees by efficiency score (descending)
+                available_employees.sort(key=lambda x: efficiency_scores.loc[x], reverse=True)
+                
+                # Assign needed staff
+                needed = required_staff - len(current_staff)
+                for emp in available_employees[:needed]:
+                    assignment = {
+                        'day': day,
+                        'shift': shift_name,
+                        'role': role_key,
+                        'hours': shift_config['end'] - shift_config['start']
+                    }
+                    employee_assignments[emp].append(assignment)
+                    schedule[day][shift_name][role_key].append(emp)
+                    
+                    # Update display schedule
+                    current_cell = display_schedule.at[day, shift_name]
+                    # Get employee's score for this shift
+                    score = efficiency_scores.loc[emp] if emp in efficiency_scores.index else 0
+                    emp_display = f"{emp} ({role_key})\n  Score: {score:.0f}"
+                    display_schedule.at[day, shift_name] = f"{current_cell}\n\n{emp_display}".strip() if current_cell else emp_display
         
         # Store schedule in session state for export
-        st.session_state.schedule_df = schedule.copy()
+        st.session_state.schedule_df = display_schedule.copy()
         
         # Create visualization
         shift_columns = [shift['name'] for shift in current_shifts]
-        dummy_data = np.ones((len(schedule), len(shift_columns)))
+        dummy_data = np.ones((len(display_schedule), len(shift_columns)))
         
         # Format labels for heatmap
         shift_labels = []
         for col in shift_columns:
             col_labels = []
             for day in weekday_order:
-                cell_content = schedule.at[day, col]
+                cell_content = display_schedule.at[day, col]
                 if '\n\n' in cell_content:
                     parts = cell_content.split('\n\n')
                     formatted = '\n'.join([p.replace('\n', ' ') for p in parts])
@@ -556,7 +565,7 @@ def plot_weekly_schedule_with_availability(df, availability):
             linecolor='gray',
             cbar=False,
             annot_kws={
-                'fontsize': 14 if any('\n\n' in cell for cell in schedule.values.flatten()) else 16,
+                'fontsize': 14 if any('\n\n' in cell for cell in display_schedule.values.flatten()) else 16,
                 'ha': 'center',
                 'va': 'center',
                 'fontweight': 'bold'
@@ -565,10 +574,10 @@ def plot_weekly_schedule_with_availability(df, availability):
         )
         
         ax.set_xticklabels(shift_columns, rotation=0, fontsize=16, fontweight='bold')
-        ax.set_yticklabels(schedule.index, rotation=0, fontsize=16, fontweight='bold')
+        ax.set_yticklabels(display_schedule.index, rotation=0, fontsize=16, fontweight='bold')
         ax.xaxis.tick_top()
         ax.xaxis.set_label_position('top')
-        ax.set_title('AI Optimized Labor Schedule (Shift Efficiency)', pad=24, fontsize=22, fontweight='bold')
+        ax.set_title('AI Optimized Labor Schedule (Role & Shift Efficiency)', pad=24, fontsize=22, fontweight='bold')
         plt.tight_layout()
         
         # Save figure for PDF export
@@ -1337,10 +1346,11 @@ try:
     if uploaded_file:
         # Load and process data with caching
         df = load_and_process_data(uploaded_file)
-        
-        if df is not None:
-            # Configure shifts
-            configure_shifts()     
+    
+    if df is not None:
+        # Configure shifts and roles
+        configure_roles()
+        configure_shifts()     
 
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
