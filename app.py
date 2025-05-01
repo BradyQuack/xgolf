@@ -23,8 +23,15 @@ if 'shift_config' not in st.session_state:
 # Initialize roles if not present
 if 'roles_config' not in st.session_state:
     st.session_state.roles_config = {
-        'Role 1': {'name': 'Bartender', 'color': 'blue', 'staff': 1},
-        'Role 2': {'name': 'General Help', 'color': 'green', 'staff': 1}
+        'Role 1': {'name': 'Bartender', 'color': 'blue', 'optimize': True},
+        'Role 2': {'name': 'General Help', 'color': 'green', 'optimize': False}
+    }
+
+# Initialize staff configuration if not present
+if 'staff_config' not in st.session_state:
+    st.session_state.staff_config = {
+        'Role 1': 1,  # Default staff count for Role 1
+        'Role 2': 1   # Default staff count for Role 2
     }
 
 @st.cache_data
@@ -74,7 +81,7 @@ def validate_shift_times(start, end, shift_key):
 ##################################################################################################################################################################################################################################################
 
 def configure_roles():
-    """Create a dedicated sidebar section for role configuration."""
+    """Create a dedicated sidebar section for role configuration with updated layout."""
     st.sidebar.header("Role Configuration")
     
     with st.sidebar.expander("⚙️ Role Settings", expanded=False):
@@ -89,7 +96,7 @@ def configure_roles():
             
             st.write(f"**{role_key}**")
             
-            # Create columns with 3:1 ratio for Role Name and Staff
+            # Create columns with focus on Role Name and Optimize checkbox
             cols = st.columns([3, 1])
             
             with cols[0]:
@@ -100,31 +107,12 @@ def configure_roles():
                     key=f'role_{role_key}_name'
                 )
             
-            with cols[1]:
-                # Staff count
-                staff = st.number_input(
-                    "Staff",
-                    min_value=1,
-                    max_value=10,
-                    value=role_data.get('staff', 1),
-                    key=f'role_{role_key}_staff',
-                    step=1
-                )
-            
             # Performance optimization checkbox
             optimize = st.checkbox(
-                "Optimized for Performance",
+                "Optimize for Performance",
                 value=role_data.get('optimize', True),
                 key=f'role_{role_key}_optimize',
-                help="When checked, this role will be filled with the highest performing employees based on efficiency scores"
-            )
-            
-            # Performance optimization checkbox
-            optimize = st.checkbox(
-                "Optimized for Performance",
-                value=role_data.get('optimize', True),
-                key=f'role_{role_key}_optimize',
-                help="When checked, this role will be filled with the highest performing employees based on efficiency scores"
+                help="When checked, this role will be filled with the highest performing employees based on efficiency scores. If unchecked, scheduling will prioritize equal distribution of shifts."
             )
             
             # Remove button - don't allow removing the default roles
@@ -139,6 +127,10 @@ def configure_roles():
                                 if 'roles' in st.session_state.availability[emp] and role_key in st.session_state.availability[emp]['roles']:
                                     del st.session_state.availability[emp]['roles'][role_key]
                         
+                        # Remove from staff config
+                        if role_key in st.session_state.staff_config:
+                            del st.session_state.staff_config[role_key]
+                        
                         st.rerun()
                         return
                     except Exception as e:
@@ -148,7 +140,6 @@ def configure_roles():
             st.session_state.roles_config[role_key] = {
                 'name': name,
                 'color': role_data.get('color', 'gray'),
-                'staff': staff,
                 'optimize': optimize
             }
             
@@ -160,27 +151,18 @@ def configure_roles():
         
         # Use a form for adding new roles
         with st.form("add_role_form"):
-            # Create columns with 3:1 ratio for Role Name and Staff in the add role form
+            # Create columns focused on Role Name
             form_cols = st.columns([3, 1])
             
             with form_cols[0]:
                 new_role_name = st.text_input("Role Name", key="new_role_name")
             
-            with form_cols[1]:
-                new_role_staff = st.number_input(
-                    "Staff",
-                    min_value=1,
-                    max_value=10,
-                    value=1,
-                    key="new_role_staff"
-                )
-            
             # Performance optimization checkbox for new role
             new_role_optimize = st.checkbox(
-                "Optimized for Performance",
+                "Optimize for Performance",
                 value=True,
                 key="new_role_optimize",
-                help="When checked, this role will be filled with the highest performing employees based on efficiency scores"
+                help="When checked, this role will be filled with the highest performing employees based on efficiency scores. If unchecked, scheduling will prioritize equal distribution of shifts."
             )
             
             submit = st.form_submit_button("➕ Add Role")
@@ -199,8 +181,7 @@ def configure_roles():
                 st.session_state.roles_config[new_role_key] = {
                     'name': new_role_name,
                     'color': 'gray',  # Default color
-                    'staff': new_role_staff,
-                    'optimize': new_role_optimize  # Use the checkbox value
+                    'optimize': new_role_optimize
                 }
                 
                 # Initialize this role in employee availability preferences
@@ -210,9 +191,50 @@ def configure_roles():
                             st.session_state.availability[emp]['roles'] = {}
                         st.session_state.availability[emp]['roles'][new_role_key] = True
                 
+                # Initialize staff count for the new role
+                st.session_state.staff_config[new_role_key] = 1  # Default to 1
+                
                 st.success(f"Added new role: {new_role_name}")
                 st.rerun()
 
+
+##################################################################################################################################################################################################################################################
+
+def configure_staff():
+    """Create a dedicated sidebar section for staff count configuration."""
+    st.sidebar.header("Staff Configuration")
+    
+    with st.sidebar.expander("⚙️ Staff Settings", expanded=False):
+        # Display staff settings for each role
+        role_keys = sorted(
+            st.session_state.roles_config.keys(),
+            key=lambda x: int(x.split()[1]) if x.split()[1].isdigit() else 0
+        )
+        
+        for role_key in role_keys:
+            role_data = st.session_state.roles_config[role_key]
+            role_name = role_data['name']
+            
+            cols = st.columns([3, 1])
+            
+            with cols[0]:
+                st.write(f"**{role_name}**")
+            
+            with cols[1]:
+                # Staff count input
+                staff_count = st.number_input(
+                    "Staff",
+                    min_value=1,
+                    max_value=10,
+                    value=st.session_state.staff_config.get(role_key, 1),
+                    key=f'staff_{role_key}',
+                    step=1
+                )
+                # Update staff count in session state
+                st.session_state.staff_config[role_key] = staff_count
+            
+            # Add a separator between roles
+            st.markdown("---")
 
 ##################################################################################################################################################################################################################################################
 
@@ -443,9 +465,10 @@ def plot_weekly_schedule_with_availability(df, availability):
     """
     Generate optimized schedule considering:
     - Shift configurations (start/end times)
-    - Role requirements (staff per role)
+    - Role requirements (staff per role from staff_config)
     - Employee availability (days, shifts, roles, max shifts)
-    - Employee efficiency in specific shifts
+    - Employee efficiency in specific shifts (for optimized roles)
+    - Equal distribution of shifts (for non-optimized roles)
     - Shift sales (higher revenue shifts prioritized)
     """
     try:
@@ -526,7 +549,8 @@ def plot_weekly_schedule_with_availability(df, availability):
             
             # Get role requirements for this shift
             for role_key, role_data in st.session_state.roles_config.items():
-                required_staff = role_data['staff']
+                # Get staff count from staff_config instead of role_data
+                required_staff = st.session_state.staff_config.get(role_key, 1)
                 if required_staff <= 0:
                     continue  # Skip roles with no staff requirement
                 
@@ -558,8 +582,17 @@ def plot_weekly_schedule_with_availability(df, availability):
                     ):
                         available_employees.append(emp)
                 
-                # Sort available employees by efficiency score (descending)
-                available_employees.sort(key=lambda x: efficiency_scores.loc[x], reverse=True)
+                # Check if this role should be optimized
+                role_optimize = st.session_state.roles_config[role_key].get('optimize', True)
+                
+                if role_optimize:
+                    # For optimized roles, sort available employees by efficiency score (descending)
+                    available_employees.sort(key=lambda x: efficiency_scores.loc[x] if x in efficiency_scores.index else 0, 
+                                            reverse=True)
+                else:
+                    # For non-optimized roles, sort available employees by number of assigned shifts (ascending)
+                    # This gives preference to employees with fewer assigned shifts
+                    available_employees.sort(key=lambda x: len(employee_assignments[x]))
                 
                 # Assign needed staff
                 needed = required_staff - len(current_staff)
