@@ -1,4 +1,3 @@
-#Version_021 - In progress - Role Configuration - New schedule algorithmn
 #app.py
 import streamlit as st
 import pandas as pd
@@ -1451,25 +1450,23 @@ try:
             num_shifts = len(st.session_state.shift_config)
 
             st.markdown(f"""
-            ## 💡 Key Advantages
-            
             ### 📈 Revenue Impact
-            - **+15-25% sales potential** through peak shift optimization
+            - **+10-20% sales potential** through peak shift optimization
             - **Top performer alignment** with highest-grossing hours
             - **Waste reduction** via demand-pattern staffing
 
             ### 📊 Data-Driven Decisions
-            - **Historical pattern analysis** ({num_shifts} shifts configured)
+            - **Historical pattern analysis** 
             - **Real-time conflict detection**
             - **Performance-based role assignments**
 
             ### ⚖️ Fair Scheduling
-            - **Equitable shift distribution** across {num_roles} roles
+            - **Equitable shift distribution** 
             - **Bias prevention** through AI-driven assignments
             - **Workload balance** alerts via employee capacity tracking
             
             ### 💰 Cost Efficiency
-            - **20% labor cost reduction** through:
+            - **15% labor cost reduction** through:
               - Overstaffing prevention
               - Shift length optimization
               - Role-specific staffing
