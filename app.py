@@ -104,14 +104,14 @@ def configure_roles():
                 name = st.text_input(
                     "Role Name",
                     value=role_data['name'],
-                    key=f'role_{role_key}_name'
+                    key=f'role_name_{role_key}'  # Modified key to ensure uniqueness
                 )
             
-            # Performance optimization checkbox
+            # Performance optimization checkbox - SINGLE CHECKBOX
             optimize = st.checkbox(
                 "Optimize for Performance",
                 value=role_data.get('optimize', True),
-                key=f'role_{role_key}_optimize',
+                key=f'role_optimize_{role_key}',  # Modified key to ensure uniqueness
                 help="When checked, this role will be filled with the highest performing employees based on efficiency scores. If unchecked, scheduling will prioritize equal distribution of shifts."
             )
             
@@ -145,57 +145,6 @@ def configure_roles():
             
             # Add a separator between roles
             st.markdown("---")
-        
-        # Add new role section
-        st.write("**Add Another Role**")
-        
-        # Use a form for adding new roles
-        with st.form("add_role_form"):
-            # Create columns focused on Role Name
-            form_cols = st.columns([3, 1])
-            
-            with form_cols[0]:
-                new_role_name = st.text_input("Role Name", key="new_role_name")
-            
-            # Performance optimization checkbox for new role
-            new_role_optimize = st.checkbox(
-                "Optimize for Performance",
-                value=True,
-                key="new_role_optimize",
-                help="When checked, this role will be filled with the highest performing employees based on efficiency scores. If unchecked, scheduling will prioritize equal distribution of shifts."
-            )
-            
-            submit = st.form_submit_button("➕ Add Role")
-            
-            if submit and new_role_name:
-                # Find the next available role number
-                existing_numbers = [
-                    int(key.split()[1]) for key in st.session_state.roles_config.keys()
-                    if key.split()[1].isdigit()
-                ]
-                next_num = max(existing_numbers) + 1 if existing_numbers else 3
-                
-                new_role_key = f'Role {next_num}'
-                
-                # Add the new role
-                st.session_state.roles_config[new_role_key] = {
-                    'name': new_role_name,
-                    'color': 'gray',  # Default color
-                    'optimize': new_role_optimize
-                }
-                
-                # Initialize this role in employee availability preferences
-                if 'availability' in st.session_state:
-                    for emp in st.session_state.availability:
-                        if 'roles' not in st.session_state.availability[emp]:
-                            st.session_state.availability[emp]['roles'] = {}
-                        st.session_state.availability[emp]['roles'][new_role_key] = True
-                
-                # Initialize staff count for the new role
-                st.session_state.staff_config[new_role_key] = 1  # Default to 1
-                
-                st.success(f"Added new role: {new_role_name}")
-                st.rerun()
 
 
 ##################################################################################################################################################################################################################################################
