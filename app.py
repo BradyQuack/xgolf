@@ -111,6 +111,22 @@ def configure_roles():
                     step=1
                 )
             
+            # Performance optimization checkbox
+            optimize = st.checkbox(
+                "Optimized for Performance",
+                value=role_data.get('optimize', True),
+                key=f'role_{role_key}_optimize',
+                help="When checked, this role will be filled with the highest performing employees based on efficiency scores"
+            )
+            
+            # Performance optimization checkbox
+            optimize = st.checkbox(
+                "Optimized for Performance",
+                value=role_data.get('optimize', True),
+                key=f'role_{role_key}_optimize',
+                help="When checked, this role will be filled with the highest performing employees based on efficiency scores"
+            )
+            
             # Remove button - don't allow removing the default roles
             if role_key not in ['Role 1', 'Role 2']:
                 if st.button(f"❌ Remove", key=f'remove_role_{role_key}'):
@@ -132,7 +148,8 @@ def configure_roles():
             st.session_state.roles_config[role_key] = {
                 'name': name,
                 'color': role_data.get('color', 'gray'),
-                'staff': staff
+                'staff': staff,
+                'optimize': optimize
             }
             
             # Add a separator between roles
@@ -143,7 +160,7 @@ def configure_roles():
         
         # Use a form for adding new roles
         with st.form("add_role_form"):
-            # Create columns with 3:1 ratio for Role Name and Staff
+            # Create columns with 3:1 ratio for Role Name and Staff in the add role form
             form_cols = st.columns([3, 1])
             
             with form_cols[0]:
@@ -157,6 +174,14 @@ def configure_roles():
                     value=1,
                     key="new_role_staff"
                 )
+            
+            # Performance optimization checkbox for new role
+            new_role_optimize = st.checkbox(
+                "Optimized for Performance",
+                value=True,
+                key="new_role_optimize",
+                help="When checked, this role will be filled with the highest performing employees based on efficiency scores"
+            )
             
             submit = st.form_submit_button("➕ Add Role")
             
@@ -174,7 +199,8 @@ def configure_roles():
                 st.session_state.roles_config[new_role_key] = {
                     'name': new_role_name,
                     'color': 'gray',  # Default color
-                    'staff': new_role_staff
+                    'staff': new_role_staff,
+                    'optimize': new_role_optimize  # Use the checkbox value
                 }
                 
                 # Initialize this role in employee availability preferences
