@@ -1374,67 +1374,99 @@ try:
 
     # Add Instructions expander
     with st.expander("📘 Instructions", expanded=True):
-        st.markdown("""
-        ### Overview
-        The X-Golf Shift Optimizer is a data-driven tool designed to create optimized employee schedules based on:
-        - Historical sales efficiency
-        - Employee availability
-        - Shift patterns
-        
-        **Key Benefit:** Places top-performing employees in the top-grossing shifts.
+    st.markdown("""
+    ### 🛠️ How to Use
+    """)
+    
+    # Workflow step selector
+    step_choice = st.selectbox(
+        "Select a workflow step:",
+        options=[
+            "1. Data Upload",
+            "2. Configure Roles",
+            "3. Configure Shifts",
+            "4. Set Employee Availability"
+        ],
+        index=0,
+        key="workflow_selector"
+    )
 
-        ### How to Use
-        1. **Data Upload**
-           - Download Square monthly sales data
-           - Click the "Browse files" button to upload sales data CSV
-           - Data processing begins automatically after upload
+    # Workflow instructions dictionary
+    workflow_steps = {
+        "1. Data Upload": {
+            "content": """
+            **📤 Data Preparation & Upload**
+            1. Export monthly sales data from Square POS:
+               - Select Reports → Exports → Item Sales
+               - Choose CSV format
+            2. Ensure file contains:
+               - Date
+               - Time
+               - Gross Sales
+               - Employee
+            3. Upload via "Browse files" button
+            4. Automatic processing validates & structures data
+            
+            *💡 Pro Tip: Use last 3 months' data for best optimization results*""",
+            "icon": "📤"
+        },
+        "2. Configure Roles": {
+            "content": f"""
+            **👥 Role Configuration (Sidebar)**
+            1. Access role settings in left sidebar
+            2. For each role:
+               - Name (e.g., Bartender, Server)
+               - Color coding
+               - Optimization toggle:
+                 ✅ Enabled: Prioritize top performers
+                 ⚠️ Disabled: Equal shift distribution
+            3. Set minimum staff per role
+            4. Add/remove roles as needed
+            
+            *Current Active Roles: {len(st.session_state.roles_config)} configured*""",
+            "icon": "👥"
+        },
+        "3. Configure Shifts": {
+            "content": f"""
+            **⏰ Shift Setup (Sidebar)**
+            1. Default shifts:
+               - {st.session_state.shift_config['Shift 1']['name']}: {st.session_state.shift_config['Shift 1']['start']}-{st.session_state.shift_config['Shift 1']['end']}
+               - {st.session_state.shift_config['Shift 2']['name']}: {st.session_state.shift_config['Shift 2']['start']}-{st.session_state.shift_config['Shift 2']['end']}
+            2. Customize:
+               - Start/end times
+               - Shift names
+               - Role-specific staffing
+            3. Prevent overlaps with real-time validation
+            4. Add unlimited shifts with ➕ button
+            
+            *💡 Pro Tip: Align shifts with sales peaks from heatmaps*""",
+            "icon": "⏰"
+        },
+        "4. Set Employee Availability": {
+            "content": """
+            **👤 Employee Preferences**
+            1. Set per-employee:
+               - Max shifts/week (1-7)
+               - Available days
+               - Shift preferences
+               - Role capabilities
+            2. Auto-saves to session
+            3. Visual conflict detection
+            4. Combine with performance data
+            
+            *System tracks: 5 availability dimensions per employee*""",
+            "icon": "👤"
+        }
+    }
 
-        2. **Configure Shifts** (⚙️ Sidebar)
-           - Default shifts:
-             - Morning Shift (9 AM - 4 PM)
-             - Evening Shift (4 PM - 12 AM)
-           - Customizable:
-             - Shift names
-             - Start/end times
-             - Staff requirements
-           - Add shifts with ➕ button
+    # Display selected step
+    selected_step = workflow_steps[step_choice]
+    st.markdown(f"""
+    {selected_step['icon']} **{step_choice.split('. ')[1]}**  
+    {selected_step['content']}
+    """)
 
-        3. **Set Employee Availability** (⚙️ Sidebar)
-           - Per employee settings:
-             - Max shifts/week (1-7)
-             - Available shifts
-             - Available days
-
-        4. **Explore Visualizations**
-           - Sales patterns by hour & day
-           - Shift efficiency comparisons
-           - Employee efficiency rankings
-           - AI-optimized schedule
-
-        ### Efficiency Metrics
-        | Metric | Description | Importance |
-        |---|---|----|
-        | Total Sales | Overall revenue generated | Experience indicator |
-        | Avg Sale/Transaction | Average transaction value | Upselling ability indicator |
-        | Shift Count | Number of shifts worked | Availability indicator |
-        | Avg Sales/Shift | Sales performance per shift | Shift productivity indicator |
-        | Efficiency Score | Combined metrics score | Employee efficiency indicator |
-
-        ### New Feature: Average Sales Per Shift
-        The new "Average Sales Per Shift" metric provides:
-        - A balanced view of employee productivity per shift
-        - Accounts for different shift frequencies
-        - Helps identify employees who excel in specific shifts
-        - Prevents total sales bias toward employees who simply work more shifts
-
-        ### Optimization Benefits
-        | Feature | Benefit | Impact |
-        |---|---|----|
-        | Shift-specific scheduling | Employees in best-performing shifts | 15-25% revenue potential |
-        | Data-driven assignments | Removes scheduling bias | Fairer process |
-        | Historical analysis | Optimal staffing levels | Cost reduction |
-        | Efficiency tracking | Identify top performers | Better development |
-        """)
+    
 
     if uploaded_file:
         # Load and process data with caching
