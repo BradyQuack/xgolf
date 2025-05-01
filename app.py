@@ -350,12 +350,14 @@ def get_employee_availability(df):
                         key=f"{emp}_{shift_key}"
                     )
                 
-                # Role preference checkboxes
+                # Role preference checkboxes with actual role names displayed
                 st.write("**Role Preferences**")
                 role_prefs = {}
                 for role_key, role_data in st.session_state.roles_config.items():
+                    # Use the role's display name rather than the role_key
+                    display_name = role_data['name']
                     role_prefs[role_key] = st.checkbox(
-                        role_key,
+                        display_name,
                         value=st.session_state.availability[emp]['roles'].get(role_key, True),
                         key=f"{emp}_{role_key}"
                     )
