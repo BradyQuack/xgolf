@@ -16,17 +16,15 @@ st.set_page_config(page_title="AI Shift Optimizer", layout="wide")
 # Initialize session state for shift configurations
 if 'shift_config' not in st.session_state:
     st.session_state.shift_config = {
-        'Shift 1': {'name': 'Morning Shift', 'start': 9, 'end': 16, 
-                    'roles': {'Bartender': 1, 'Help': 1}},
-        'Shift 2': {'name': 'Evening Shift', 'start': 16, 'end': 24,
-                    'roles': {'Bartender': 1, 'Help': 1}}
+        'Shift 1': {'name': 'Morning Shift', 'start': 9, 'end': 16},
+        'Shift 2': {'name': 'Evening Shift', 'start': 16, 'end': 24}
     }
 
 # Initialize roles if not present
 if 'roles_config' not in st.session_state:
     st.session_state.roles_config = {
-        'Bartender': {'name': 'Bartender', 'color': 'blue'},
-        'Help': {'name': 'Help', 'color': 'green'}
+        'Bartender': {'name': 'Bartender', 'color': 'blue', 'staff': 1},
+        'Help': {'name': 'General Help', 'color': 'green', 'staff': 1}
     }
 
 @st.cache_data
@@ -72,6 +70,102 @@ def validate_shift_times(start, end, shift_key):
             st.sidebar.warning(f"⚠️ {shift_key} overlaps with {key}. This may cause scheduling conflicts.")
     
     return True
+
+##################################################################################################################################################################################################################################################
+
+def configure_roles():
+    """Create a dedicated sidebar section for role configuration."""
+    st.sidebar.header("Role Configuration")
+    
+    with st.sidebar.expander("⚙️ Role Settings", expanded=False):
+        # Display all existing roles
+        for role_key in sorted(st.session_state.roles_config.keys()):
+            role_data = st.session_state.roles_config[role_key]
+            
+            st.write(f"**{role_key}**")
+            
+            # Role name input
+            name = st.text_input(
+                "Role Name",
+                value=role_data['name'],
+                key=f'role_{role_key}_name'
+            )
+            
+            # Staff count
+            staff = st.number_input(
+                "Default Staff",
+                min_value=1,
+                max_value=10,
+                value=role_data.get('staff', 1),
+                key=f'role_{role_key}_staff',
+                step=1
+            )
+            
+            # Remove button - don't allow removing the default roles
+            if role_key not in ['Bartender', 'Help']:
+                if st.button(f"❌ Remove", key=f'remove_role_{role_key}'):
+                    try:
+                        del st.session_state.roles_config[role_key]
+                        
+                        # Also remove this role from employee availability preferences
+                        if 'availability' in st.session_state:
+                            for emp in st.session_state.availability:
+                                if 'roles' in st.session_state.availability[emp] and role_key in st.session_state.availability[emp]['roles']:
+                                    del st.session_state.availability[emp]['roles'][role_key]
+                        
+                        st.rerun()
+                        return
+                    except Exception as e:
+                        st.error(f"Error removing role: {str(e)}")
+            
+            # Update role data
+            st.session_state.roles_config[role_key] = {
+                'name': name,
+                'color': role_data.get('color', 'gray'),
+                'staff': staff
+            }
+            
+            # Add a separator between roles
+            st.markdown("---")
+        
+        # Add new role section
+        st.write("**Add New Role**")
+        
+        # Use a form for adding new roles
+        with st.form("add_role_form"):
+            new_role_name = st.text_input("Role Name", key="new_role_name")
+            new_role_staff = st.number_input(
+                "Default Staff",
+                min_value=1,
+                max_value=10,
+                value=1,
+                key="new_role_staff"
+            )
+            
+            submit = st.form_submit_button("➕ Add Role")
+            
+            if submit and new_role_name:
+                # Check if role already exists
+                if new_role_name in st.session_state.roles_config:
+                    st.error(f"Role '{new_role_name}' already exists!")
+                else:
+                    # Add the new role
+                    st.session_state.roles_config[new_role_name] = {
+                        'name': new_role_name,
+                        'color': 'gray',  # Default color
+                        'staff': new_role_staff
+                    }
+                    
+                    # Initialize this role in employee availability preferences
+                    if 'availability' in st.session_state:
+                        for emp in st.session_state.availability:
+                            if 'roles' not in st.session_state.availability[emp]:
+                                st.session_state.availability[emp]['roles'] = {}
+                            st.session_state.availability[emp]['roles'][new_role_name] = True
+                    
+                    st.success(f"Added new role: {new_role_name}")
+                    st.rerun()
+
 
 ##################################################################################################################################################################################################################################################
 
@@ -129,53 +223,6 @@ def configure_shifts():
                 # Validate times
                 is_valid = validate_shift_times(start, end, shift_key)
                 
-                # Role configuration for this shift
-                st.write("**Roles**")
-                role_cols = st.columns([1, 1])
-                
-                # Initialize roles for this shift if not present
-                if 'roles' not in shift_data:
-                    shift_data['roles'] = {'Bartender': 1, 'Help': 1}
-                
-                # Create a temporary dict to store role updates
-                updated_roles = {}
-                
-                # Display current roles with staff count inputs
-                for i, (role_key, staff_count) in enumerate(shift_data['roles'].items()):
-                    col_idx = i % 2  # Alternate between columns
-                    with role_cols[col_idx]:
-                        # Display role name and staff count input
-                        st.write(f"**{role_key}**")
-                        staff = st.number_input(
-                            "Staff",
-                            min_value=0,
-                            max_value=10,
-                            value=staff_count,
-                            key=f'{shift_key}_{role_key}_staff',
-                            step=1
-                        )
-                        updated_roles[role_key] = staff
-                
-                # Add Role button
-                if st.button("➕ Add Role", key=f'{shift_key}_add_role'):
-                    # Show a form to add a new role
-                    with st.form(f"add_role_form_{shift_key}"):
-                        new_role_name = st.text_input("Role Name", value="", key=f'{shift_key}_new_role_name')
-                        new_role_staff = st.number_input("Staff", min_value=1, max_value=10, value=1, key=f'{shift_key}_new_role_staff')
-                        
-                        if st.form_submit_button("Add"):
-                            if new_role_name and new_role_name not in shift_data['roles']:
-                                # Add to shift roles
-                                updated_roles[new_role_name] = new_role_staff
-                                
-                                # Add to global roles if not present
-                                if new_role_name not in st.session_state.roles_config:
-                                    st.session_state.roles_config[new_role_name] = {
-                                        'name': new_role_name,
-                                        'color': 'gray'  # Default color
-                                    }
-                                st.rerun()
-                
                 # Remove button
                 with cols[2]:
                     # Don't show remove button for the first two shifts
@@ -193,8 +240,7 @@ def configure_shifts():
                     st.session_state.shift_config[shift_key] = {
                         'name': name,
                         'start': start,
-                        'end': end,
-                        'roles': updated_roles
+                        'end': end
                     }
         
         # Always show the add button at the bottom
@@ -214,20 +260,13 @@ def configure_shifts():
                     st.session_state.shift_config[f'Shift {next_num}'] = {
                         'name': new_shift_name,
                         'start': 0,
-                        'end': 8,
-                        'roles': {'Bartender': 1, 'Help': 1}  # Default roles
+                        'end': 8
                     }
                     
                     # Initialize availability for the new shift for all employees
                     if 'availability' in st.session_state:
                         for emp in st.session_state.availability:
                             st.session_state.availability[emp]['shifts'][new_shift_name] = True
-                            # Initialize role preferences
-                            if 'roles' not in st.session_state.availability[emp]:
-                                st.session_state.availability[emp]['roles'] = {}
-                            for role in st.session_state.roles_config:
-                                if role not in st.session_state.availability[emp]['roles']:
-                                    st.session_state.availability[emp]['roles'][role] = True
                     
                     st.rerun()
                 except Exception as e:
@@ -301,7 +340,6 @@ def get_employee_availability(df):
                     )
 
                 # Days multiselect
-                st.write("**Available Days**")
                 days = st.multiselect(
                     "Available Days",
                     options=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
