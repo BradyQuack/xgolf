@@ -1374,7 +1374,16 @@ try:
 
     # Add Instructions expander
     with st.expander("📘 Step-by-Step Instructions", expanded=True):
-        st.markdown("""
+        # Precompute values
+        num_roles = len(st.session_state.roles_config)
+        shift1_name = st.session_state.shift_config['Shift 1']['name']
+        shift1_start = st.session_state.shift_config['Shift 1']['start']
+        shift1_end = st.session_state.shift_config['Shift 1']['end']
+        shift2_name = st.session_state.shift_config['Shift 2']['name']
+        shift2_start = st.session_state.shift_config['Shift 2']['start']
+        shift2_end = st.session_state.shift_config['Shift 2']['end']
+
+        st.markdown(f"""
         ## 🚀 Getting Started
         
         ### 1. 📤 Data Upload
@@ -1402,16 +1411,16 @@ try:
           • Max role overlaps  
         
         *System Trackers:*  
-        • Currently active roles: **{len(st.session_state.roles_config)}**  
+        • Currently active roles: **{num_roles}**  
         • Staff changes saved automatically
         
         ---
         ### 3. ⏰ Shift Setup
         **Default Configuration:**  
-        - **{st.session_state.shift_config['Shift 1']['name']}:**  
-          {st.session_state.shift_config['Shift 1']['start']}-{st.session_state.shift_config['Shift 1']['end']}  
-        - **{st.session_state.shift_config['Shift 2']['name']}:**  
-          {st.session_state.shift_config['Shift 2']['start']}-{st.session_state.shift_config['Shift 2']['end']}  
+        - **{shift1_name}:**  
+          {shift1_start}-{shift1_end}  
+        - **{shift2_name}:**  
+          {shift2_start}-{shift2_end}  
         
         **Customization Options:**  
         1. Add/remove shifts with ➕/❌ buttons  
@@ -1439,15 +1448,7 @@ try:
         • 5-dimensional availability tracking  
         • Auto-save to session state  
         • Visual conflict alerts  
-        """.format(
-            len(st.session_state.roles_config),
-            st.session_state.shift_config['Shift 1']['name'],
-            st.session_state.shift_config['Shift 1']['start'],
-            st.session_state.shift_config['Shift 1']['end'],
-            st.session_state.shift_config['Shift 2']['name'],
-            st.session_state.shift_config['Shift 2']['start'],
-            st.session_state.shift_config['Shift 2']['end']
-        ))
+        """)
 
     
 
