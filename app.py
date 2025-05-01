@@ -618,6 +618,7 @@ def plot_weekly_schedule_with_availability(df, availability):
                     
                     # Update display schedule
                     current_cell = display_schedule.at[day, shift_name]
+                    role_name = st.session_state.roles_config[role_key]['name']
                     # Get employee's score for this shift
                     score = efficiency_scores.loc[emp] if emp in efficiency_scores.index else 0
                     emp_display = f"{emp} - {role_name} - Score: {score:.0f}"
