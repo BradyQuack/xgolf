@@ -1377,7 +1377,15 @@ try:
 
     with col1:
         with st.expander("🚀 Getting Started: Instructions", expanded=False):
-            # [Keep all existing instruction content unchanged...]
+            # Precompute values
+            num_roles = len(st.session_state.roles_config)
+            shift1_name = st.session_state.shift_config['Shift 1']['name']
+            shift1_start = st.session_state.shift_config['Shift 1']['start']
+            shift1_end = st.session_state.shift_config['Shift 1']['end']
+            shift2_name = st.session_state.shift_config['Shift 2']['name']
+            shift2_start = st.session_state.shift_config['Shift 2']['start']
+            shift2_end = st.session_state.shift_config['Shift 2']['end']
+
             st.markdown(f"""
             ### 1. 📤 Data Upload
             **Essential CSV Requirements:**
@@ -1440,6 +1448,10 @@ try:
 
     with col2:
         with st.expander("🚀 Optimization Benefits", expanded=False):
+            # Precompute values from session state
+            num_roles = len(st.session_state.roles_config)
+            num_shifts = len(st.session_state.shift_config)
+            
             st.markdown(f"""
             ## 💡 Key Advantages
             
