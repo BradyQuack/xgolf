@@ -1374,97 +1374,97 @@ try:
 
     # Add Instructions expander
     with st.expander("📘 Instructions", expanded=True):
-    st.markdown("""
-    ### 🛠️ How to Use
-    """)
-    
-    # Workflow step selector
-    step_choice = st.selectbox(
-        "Select a workflow step:",
-        options=[
-            "1. Data Upload",
-            "2. Configure Roles",
-            "3. Configure Shifts",
-            "4. Set Employee Availability"
-        ],
-        index=0,
-        key="workflow_selector"
-    )
+        st.markdown("""
+        ### 🛠️ How to Use
+        """)
+        
+        # Workflow step selector
+        step_choice = st.selectbox(
+            "Select a workflow step:",
+            options=[
+                "1. Data Upload",
+                "2. Configure Roles",
+                "3. Configure Shifts",
+                "4. Set Employee Availability"
+            ],
+            index=0,
+            key="workflow_selector"
+        )
 
-    # Workflow instructions dictionary
-    workflow_steps = {
-        "1. Data Upload": {
-            "content": """
-            **📤 Data Preparation & Upload**
-            1. Export monthly sales data from Square POS:
-               - Select Reports → Exports → Item Sales
-               - Choose CSV format
-            2. Ensure file contains:
-               - Date
-               - Time
-               - Gross Sales
-               - Employee
-            3. Upload via "Browse files" button
-            4. Automatic processing validates & structures data
-            
-            *💡 Pro Tip: Use last 3 months' data for best optimization results*""",
-            "icon": "📤"
-        },
-        "2. Configure Roles": {
-            "content": f"""
-            **👥 Role Configuration (Sidebar)**
-            1. Access role settings in left sidebar
-            2. For each role:
-               - Name (e.g., Bartender, Server)
-               - Color coding
-               - Optimization toggle:
-                 ✅ Enabled: Prioritize top performers
-                 ⚠️ Disabled: Equal shift distribution
-            3. Set minimum staff per role
-            4. Add/remove roles as needed
-            
-            *Current Active Roles: {len(st.session_state.roles_config)} configured*""",
-            "icon": "👥"
-        },
-        "3. Configure Shifts": {
-            "content": f"""
-            **⏰ Shift Setup (Sidebar)**
-            1. Default shifts:
-               - {st.session_state.shift_config['Shift 1']['name']}: {st.session_state.shift_config['Shift 1']['start']}-{st.session_state.shift_config['Shift 1']['end']}
-               - {st.session_state.shift_config['Shift 2']['name']}: {st.session_state.shift_config['Shift 2']['start']}-{st.session_state.shift_config['Shift 2']['end']}
-            2. Customize:
-               - Start/end times
-               - Shift names
-               - Role-specific staffing
-            3. Prevent overlaps with real-time validation
-            4. Add unlimited shifts with ➕ button
-            
-            *💡 Pro Tip: Align shifts with sales peaks from heatmaps*""",
-            "icon": "⏰"
-        },
-        "4. Set Employee Availability": {
-            "content": """
-            **👤 Employee Preferences**
-            1. Set per-employee:
-               - Max shifts/week (1-7)
-               - Available days
-               - Shift preferences
-               - Role capabilities
-            2. Auto-saves to session
-            3. Visual conflict detection
-            4. Combine with performance data
-            
-            *System tracks: 5 availability dimensions per employee*""",
-            "icon": "👤"
+        # Workflow instructions dictionary
+        workflow_steps = {
+            "1. Data Upload": {
+                "content": """
+                **📤 Data Preparation & Upload**
+                1. Export monthly sales data from Square POS:
+                   - Select Reports → Exports → Item Sales
+                   - Choose CSV format
+                2. Ensure file contains:
+                   - Date
+                   - Time
+                   - Gross Sales
+                   - Employee
+                3. Upload via "Browse files" button
+                4. Automatic processing validates & structures data
+                
+                *💡 Pro Tip: Use last 3 months' data for best optimization results*""",
+                "icon": "📤"
+            },
+            "2. Configure Roles": {
+                "content": f"""
+                **👥 Role Configuration (Sidebar)**
+                1. Access role settings in left sidebar
+                2. For each role:
+                   - Name (e.g., Bartender, Server)
+                   - Color coding
+                   - Optimization toggle:
+                     ✅ Enabled: Prioritize top performers
+                     ⚠️ Disabled: Equal shift distribution
+                3. Set minimum staff per role
+                4. Add/remove roles as needed
+                
+                *Current Active Roles: {len(st.session_state.roles_config)} configured*""",
+                "icon": "👥"
+            },
+            "3. Configure Shifts": {
+                "content": f"""
+                **⏰ Shift Setup (Sidebar)**
+                1. Default shifts:
+                   - {st.session_state.shift_config['Shift 1']['name']}: {st.session_state.shift_config['Shift 1']['start']}-{st.session_state.shift_config['Shift 1']['end']}
+                   - {st.session_state.shift_config['Shift 2']['name']}: {st.session_state.shift_config['Shift 2']['start']}-{st.session_state.shift_config['Shift 2']['end']}
+                2. Customize:
+                   - Start/end times
+                   - Shift names
+                   - Role-specific staffing
+                3. Prevent overlaps with real-time validation
+                4. Add unlimited shifts with ➕ button
+                
+                *💡 Pro Tip: Align shifts with sales peaks from heatmaps*""",
+                "icon": "⏰"
+            },
+            "4. Set Employee Availability": {
+                "content": """
+                **👤 Employee Preferences**
+                1. Set per-employee:
+                   - Max shifts/week (1-7)
+                   - Available days
+                   - Shift preferences
+                   - Role capabilities
+                2. Auto-saves to session
+                3. Visual conflict detection
+                4. Combine with performance data
+                
+                *System tracks: 5 availability dimensions per employee*""",
+                "icon": "👤"
+            }
         }
-    }
 
-    # Display selected step
-    selected_step = workflow_steps[step_choice]
-    st.markdown(f"""
-    {selected_step['icon']} **{step_choice.split('. ')[1]}**  
-    {selected_step['content']}
-    """)
+        # Display selected step
+        selected_step = workflow_steps[step_choice]
+        st.markdown(f"""
+        {selected_step['icon']} **{step_choice.split('. ')[1]}**  
+        {selected_step['content']}
+        """)
 
     
 
