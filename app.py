@@ -266,8 +266,7 @@ def configure_shifts():
                             padding-top: 10px;
                         }
                         .role-staff {
-                            flex: 1;
-                            padding-top: -10px;
+                            flex: 3;
                         }
                         </style>
                         """, 
