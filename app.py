@@ -84,66 +84,105 @@ def configure_roles():
     st.sidebar.header("Role Configuration")
     
     with st.sidebar.expander("⚙️ Role Settings", expanded=False):
-        # Display all existing roles
-        role_keys = sorted(
-            st.session_state.roles_config.keys(),
-            key=lambda x: int(x.split()[1]) if x.split()[1].isdigit() else 0
-        )
+        # Container for all roles (except the add button)
+        roles_container = st.container()
         
-        for role_key in role_keys:
-            role_data = st.session_state.roles_config[role_key]
-            
-            st.write(f"**{role_key}**")
-            
-            # Create columns with focus on Role Name and Optimize checkbox
-            cols = st.columns([3, 1])
-            
-            with cols[0]:
-                # Role name input
-                name = st.text_input(
-                    "Role Name",
-                    value=role_data['name'],
-                    key=f'role_name_{role_key}'  # Modified key to ensure uniqueness
-                )
-            
-            # Performance optimization checkbox - SINGLE CHECKBOX
-            optimize = st.checkbox(
-                "Optimize for Performance",
-                value=role_data.get('optimize', True),
-                key=f'role_optimize_{role_key}',  # Modified key to ensure uniqueness
-                help="When checked, this role will be filled with the highest performing employees based on efficiency scores. If unchecked, scheduling will prioritize equal distribution of shifts."
+        # Container at the bottom for the add button
+        button_container = st.container()
+        
+        with roles_container:
+            # Display all existing roles
+            role_keys = sorted(
+                st.session_state.roles_config.keys(),
+                key=lambda x: int(x.split()[1]) if x.split()[1].isdigit() else 0
             )
             
-            # Remove button - don't allow removing the default roles
-            if role_key not in ['Role 1', 'Role 2']:
-                if st.button(f"❌ Remove", key=f'remove_role_{role_key}'):
-                    try:
-                        del st.session_state.roles_config[role_key]
-                        
-                        # Also remove this role from employee availability preferences
-                        if 'availability' in st.session_state:
-                            for emp in st.session_state.availability:
-                                if 'roles' in st.session_state.availability[emp] and role_key in st.session_state.availability[emp]['roles']:
-                                    del st.session_state.availability[emp]['roles'][role_key]
-                        
-                        # Remove from staff config
-                        if role_key in st.session_state.staff_config:
-                            del st.session_state.staff_config[role_key]
-                        
-                        st.rerun()
-                        return
-                    except Exception as e:
-                        st.error(f"Error removing role: {str(e)}")
-            
-            # Update role data
-            st.session_state.roles_config[role_key] = {
-                'name': name,
-                'color': role_data.get('color', 'gray'),
-                'optimize': optimize
-            }
-            
-            # Add a separator between roles
-            st.markdown("---")
+            for role_key in role_keys:
+                role_data = st.session_state.roles_config[role_key]
+                
+                st.write(f"**{role_key}**")
+                
+                # Create columns with focus on Role Name and Optimize checkbox
+                cols = st.columns([3, 1])
+                
+                with cols[0]:
+                    # Role name input
+                    name = st.text_input(
+                        "Role Name",
+                        value=role_data['name'],
+                        key=f'role_name_{role_key}'  # Modified key to ensure uniqueness
+                    )
+                
+                # Performance optimization checkbox - SINGLE CHECKBOX
+                optimize = st.checkbox(
+                    "Optimize for Performance",
+                    value=role_data.get('optimize', True),
+                    key=f'role_optimize_{role_key}',  # Modified key to ensure uniqueness
+                    help="When checked, this role will be filled with the highest performing employees based on efficiency scores. If unchecked, scheduling will prioritize equal distribution of shifts."
+                )
+                
+                # Remove button - don't allow removing the default roles
+                if role_key not in ['Role 1', 'Role 2']:
+                    if st.button(f"❌ Remove", key=f'remove_role_{role_key}'):
+                        try:
+                            del st.session_state.roles_config[role_key]
+                            
+                            # Also remove this role from employee availability preferences
+                            if 'availability' in st.session_state:
+                                for emp in st.session_state.availability:
+                                    if 'roles' in st.session_state.availability[emp] and role_key in st.session_state.availability[emp]['roles']:
+                                        del st.session_state.availability[emp]['roles'][role_key]
+                            
+                            # Remove from staff config
+                            if role_key in st.session_state.staff_config:
+                                del st.session_state.staff_config[role_key]
+                            
+                            st.rerun()
+                            return
+                        except Exception as e:
+                            st.error(f"Error removing role: {str(e)}")
+                
+                # Update role data
+                st.session_state.roles_config[role_key] = {
+                    'name': name,
+                    'color': role_data.get('color', 'gray'),
+                    'optimize': optimize
+                }
+                
+                # Add a separator between roles
+                st.markdown("---")
+        
+        # Always show the add button at the bottom
+        with button_container:
+            st.write("**Role Management**")
+            if st.button("➕ Add Another Role"):
+                try:
+                    # Find the next available role number
+                    existing_numbers = [
+                        int(key.split()[1]) for key in st.session_state.roles_config.keys()
+                        if key.split()[1].isdigit()
+                    ]
+                    next_num = max(existing_numbers) + 1 if existing_numbers else 3
+                    
+                    new_role_key = f'Role {next_num}'
+                    
+                    # Add new role with default settings
+                    st.session_state.roles_config[new_role_key] = {
+                        'name': f'New Role {next_num}',
+                        'color': 'gray',
+                        'optimize': True
+                    }
+                    
+                    # Initialize availability for the new role for all employees
+                    if 'availability' in st.session_state:
+                        for emp in st.session_state.availability:
+                            if 'roles' not in st.session_state.availability[emp]:
+                                st.session_state.availability[emp]['roles'] = {}
+                            st.session_state.availability[emp]['roles'][new_role_key] = True
+                    
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Error adding role: {str(e)}")
 
 
 ##################################################################################################################################################################################################################################################
