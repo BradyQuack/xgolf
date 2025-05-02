@@ -243,7 +243,7 @@ def configure_shifts():
                 # Display each role with a staff count input
                 for i, (role_key, role_data) in enumerate(st.session_state.roles_config.items(), 1):
                     # Display role number and role name on the same line
-                    st.write(f"Role {i} - *{role_data['name']}*")
+                    st.write(f"Role {i} - **{role_data['name']}**")
                     
                     role_staff = shift_data.get('role_staff', {}).get(role_key, 1)
                         
