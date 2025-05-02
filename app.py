@@ -962,19 +962,19 @@ def plot_employee_shift_type_count(df):
                     text,
                     ha='center',
                     va='center',
-                    fontsize=11,
+                    fontsize=14,
                     fontweight='normal'
                 )
         
         # Configure plot appearance - ROTATED AXES
         ax.set_title(f'Top {num_employees} Employees by Shift Count', 
-                    fontsize=18, fontweight='bold', pad=20)
+                    fontsize=22, fontweight='bold', pad=20)
         ax.set_xlabel('')
         ax.set_ylabel('')
         
         # Set tick labels - ROTATED AXES
-        ax.set_xticklabels(weekday_order, rotation=0, fontsize=12, fontweight='bold')
-        ax.set_yticklabels(shift_types, rotation=0, fontsize=12, fontweight='bold')
+        ax.set_xticklabels(weekday_order, rotation=0, fontsize=14, fontweight='bold')
+        ax.set_yticklabels(shift_types, rotation=0, fontsize=14, fontweight='bold')
 
         # REMOVE SCALE TICKS
         ax.tick_params(axis='both', which='both', length=0)
@@ -1052,16 +1052,16 @@ def generate_shift_analysis_rotated(df):
             for j in range(shift_summary_rotated.shape[1]):
                 value = shift_summary_rotated.iloc[i, j]
                 ax.text(j + 0.5, i + 0.5, f"${value:,.0f}", 
-                        ha="center", va="center", fontsize=12, fontweight='bold')
+                        ha="center", va="center", fontsize=14, fontweight='bold')
         
         # Configure plot appearance
-        ax.set_title('Sales by Shift and Weekday', fontsize=18, fontweight='bold', pad=20)
+        ax.set_title('Sales by Shift and Weekday', fontsize=22, fontweight='bold', pad=20)
         ax.set_xlabel('')
         ax.set_ylabel('')
         
         # Set tick labels
-        ax.set_xticklabels(weekday_order, rotation=0, fontsize=12, fontweight='bold')
-        ax.set_yticklabels(shift_types, rotation=0, fontsize=12)
+        ax.set_xticklabels(weekday_order, rotation=0, fontsize=14, fontweight='bold')
+        ax.set_yticklabels(shift_types, rotation=0, fontsize=14)
         
         plt.tight_layout()
         
@@ -1146,12 +1146,12 @@ def plot_simplified_employee_morning_score(df):
                 f'{width:.0f}',                   # Format as integer
                 va='center',                      # Vertical alignment
                 fontweight='bold',                # Make text bold
-                fontsize=12                       # Increase font size
+                fontsize=14                      # Increase font size
             )
         
         # Configure chart appearance
         ax.set_title(f'Top {num_top_employees} Employee Efficiency - {morning_shift}', 
-                     fontsize=18, fontweight='bold')
+                     fontsize=22, fontweight='bold')
         ax.set_xlabel('Efficiency Score', fontsize=14, fontweight='bold')
         ax.set_ylabel('')
         
@@ -1252,12 +1252,12 @@ def plot_simplified_employee_evening_score(df):
                 f'{width:.0f}',                   # Format as integer
                 va='center',                      # Vertical alignment
                 fontweight='bold',                # Make text bold
-                fontsize=12                       # Increase font size
+                fontsize=14                      # Increase font size
             )
         
         # Configure chart appearance
         ax.set_title(f'Top {num_top_employees} Employee Efficiency - {evening_shift}', 
-                     fontsize=18, fontweight='bold')
+                     fontsize=22, fontweight='bold')
         ax.set_xlabel('Efficiency Score', fontsize=14, fontweight='bold')
         ax.set_ylabel('')
         
@@ -1344,9 +1344,9 @@ def plot_avg_sales_per_shift(df):
             ax.text(v + (max_value * 0.02), i, f"${v:,.0f}", va='center', fontweight='bold')
         
         # Configure chart appearance
-        ax.set_xlabel('Average Sales per Shift ($)', fontsize=12, fontweight='bold')
+        ax.set_xlabel('Average Sales per Shift ($)', fontsize=14, fontweight='bold')
         ax.set_ylabel('')
-        ax.set_title('Average Sales per Shift by Employee', fontsize=16, fontweight='bold')
+        ax.set_title('Average Sales per Shift by Employee', fontsize=22, fontweight='bold')
         ax.tick_params(axis='y', labelsize=16)
         for tick in ax.yaxis.get_major_ticks():
             tick.label1.set_fontweight('bold')
@@ -1518,9 +1518,9 @@ try:
                 cbar_kws={'label': 'Gross Sales ($)'},
                 ax=ax1
             )
-            ax1.set_xlabel('Hour of Day', fontsize=12, fontweight='bold')
+            ax1.set_xlabel('Hour of Day', fontsize=14, fontweight='bold')
             ax1.set_ylabel('')
-            ax1.set_title('Sales by Weekday and Hour', fontsize=16, fontweight='bold')
+            ax1.set_title('Sales by Weekday and Hour', fontsize=22, fontweight='bold')
             st.pyplot(fig1)
 
             st.markdown("""
@@ -1577,9 +1577,9 @@ try:
                 edgecolor='black',
                 ax=ax3
             )
-            ax3.set_xlabel('Gross Sales ($)', fontsize=12, fontweight='bold')
+            ax3.set_xlabel('Gross Sales ($)', fontsize=14, fontweight='bold')
             ax3.set_ylabel('')
-            ax3.set_title(f'Total Sales by Top {num_employees} Employees', fontsize=16, fontweight='bold')
+            ax3.set_title(f'Total Sales by Top {num_employees} Employees', fontsize=22, fontweight='bold')
             ax3.tick_params(axis='y', labelsize=16)
             for tick in ax3.yaxis.get_major_ticks():
                 tick.label1.set_fontweight('bold')
@@ -1655,9 +1655,9 @@ try:
                 edgecolor='black',
                 ax=ax4
             )
-            ax4.set_xlabel('Average Sale ($)', fontsize=12, fontweight='bold')
+            ax4.set_xlabel('Average Sale ($)', fontsize=14, fontweight='bold')
             ax4.set_ylabel('')
-            ax4.set_title(f'Average Sale per Transaction - Top {num_avg_employees} Employees', fontsize=16, fontweight='bold')
+            ax4.set_title(f'Average Sale per Transaction - Top {num_avg_employees} Employees', fontsize=22, fontweight='bold')
             
             # Format x-axis with dollar signs
             ax4.xaxis.set_major_formatter('${x:,.0f}')
@@ -1720,9 +1720,9 @@ try:
                         edgecolor='black',
                         ax=ax5
                     )
-                    ax5.set_xlabel('Gross Sales ($)', fontsize=12, fontweight='bold')
+                    ax5.set_xlabel('Gross Sales ($)', fontsize=14, fontweight='bold')
                     ax5.set_ylabel('')
-                    ax5.set_title(f'Total Sales by Top {num_morning_employees} Employees - {morning_shift}', fontsize=16, fontweight='bold')
+                    ax5.set_title(f'Total Sales by Top {num_morning_employees} Employees - {morning_shift}', fontsize=22, fontweight='bold')
                     
                     # Format x-axis with dollar signs
                     ax5.xaxis.set_major_formatter('${x:,.0f}')
@@ -1787,9 +1787,9 @@ try:
                         edgecolor='black',
                         ax=ax6
                     )
-                    ax6.set_xlabel('Gross Sales ($)', fontsize=12, fontweight='bold')
+                    ax6.set_xlabel('Gross Sales ($)', fontsize=14, fontweight='bold')
                     ax6.set_ylabel('')
-                    ax6.set_title(f'Total Sales by Top {num_evening_employees} Employees - {evening_shift}', fontsize=16, fontweight='bold')
+                    ax6.set_title(f'Total Sales by Top {num_evening_employees} Employees - {evening_shift}', fontsize=22, fontweight='bold')
 
                     ax6.tick_params(axis='y', labelsize=16)
                     for tick in ax6.yaxis.get_major_ticks():
