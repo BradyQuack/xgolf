@@ -243,49 +243,51 @@ def configure_shifts():
                 # Create a header row with "Role" and "Staff" labels
                 header_cols = st.columns([3, 1])
                 with header_cols[0]:
-                    st.markdown("<div style='text-align: center;'><b>Role</b></div>", unsafe_allow_html=True)
+                    st.write("**Role**")
                 with header_cols[1]:
-                    st.markdown("<div style='text-align: center;'><b>Staff</b></div>", unsafe_allow_html=True)
+                    st.write("**Staff**")
                 
-                # Display each role with a staff count input
+                # Display each role with a staff count input - with improved alignment
                 for role_key, role_data in st.session_state.roles_config.items():
-                    # Create two columns for role name and staff count
-                    role_cols = st.columns([3, 1])
+                    # Get existing staff count for this role in this shift
+                    role_staff = shift_data.get('role_staff', {}).get(role_key, 1)
                     
-                    # Column for role name
-                    with role_cols[0]:
-                        # Use a centered div with flex layout for vertical centering
-                        st.markdown(f"""
-                        <div style='
+                    # Create a container for this role row with custom CSS
+                    st.markdown(
+                        """
+                        <style>
+                        .role-row {
                             display: flex;
-                            justify-content: center;
                             align-items: center;
-                            height: 40px;
-                            text-align: center;
-                        '>
-                            {role_data['name']}
-                        </div>
-                        """, unsafe_allow_html=True)
+                            margin-bottom: 0;
+                        }
+                        .role-name {
+                            flex: 3;
+                            padding-top: 10px;
+                        }
+                        .role-staff {
+                            flex: 1;
+                        }
+                        </style>
+                        """, 
+                        unsafe_allow_html=True
+                    )
                     
-                    # Column for staff count - needs a container to center the input
+                    role_cols = st.columns([3, 1])
+                    with role_cols[0]:
+                        # Use markdown with custom class
+                        st.markdown(f'<div class="role-name">{role_data["name"]}</div>', unsafe_allow_html=True)
+                    
                     with role_cols[1]:
-                        # Using a container div to center the number input
-                        st.markdown("<div style='display: flex; justify-content: center;'>", unsafe_allow_html=True)
-                        
-                        # Get existing staff count for this role in this shift
-                        role_staff = shift_data.get('role_staff', {}).get(role_key, 1)
-                        
                         # Staff count input
                         staff_count = st.number_input(
-                            "",  # Empty label
+                            "",  # Empty label since we're using the header row
                             min_value=0,
                             max_value=10,
                             value=role_staff,
                             key=f'{shift_key}_{role_key}_staff',
                             step=1
                         )
-                        
-                        st.markdown("</div>", unsafe_allow_html=True)
                         
                         # Store the staff count for this role
                         if 'role_staff' not in shift_data:
