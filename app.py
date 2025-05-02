@@ -962,7 +962,7 @@ def plot_employee_shift_type_count(df):
                     text,
                     ha='center',
                     va='center',
-                    fontsize=9,
+                    fontsize=11,
                     fontweight='normal'
                 )
         
