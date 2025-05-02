@@ -237,8 +237,15 @@ def configure_shifts():
                         step=1
                     )
                 
-                # Role and Staff row
+                # Role Staffing section
                 st.write("**Role Staffing**")
+                
+                # Create a header row with "Role" and "Staff" labels
+                header_cols = st.columns([3, 1])
+                with header_cols[0]:
+                    st.write("**Role**")
+                with header_cols[1]:
+                    st.write("**Staff**")
                 
                 # Display each role with a staff count input
                 for role_key, role_data in st.session_state.roles_config.items():
@@ -252,7 +259,7 @@ def configure_shifts():
                         
                         # Staff count input
                         staff_count = st.number_input(
-                            "Staff",
+                            "",  # Empty label since we're using the header row
                             min_value=0,
                             max_value=10,
                             value=role_staff,
@@ -319,7 +326,7 @@ def configure_shifts():
                     st.session_state.shift_config[f'Shift {next_num}'] = {
                         'name': new_shift_name,
                         'start': 0,
-                        'end': 14,
+                        'end': 8,
                         'staff': 2,  # Default staff count
                         'role_staff': role_staff  # Add role-specific staff counts
                     }
