@@ -239,39 +239,30 @@ def configure_shifts():
                 
                 # Role Staffing section
                 st.write("**Role Staffing**")
-                
-                # Create a header row with "Role" and "Staff" labels
-                header_cols = st.columns([3, 1])
-                with header_cols[0]:
-                    st.write("**Role**")
-                with header_cols[1]:
-                    st.write("**Staff**")
-                
-                # Display each role with a staff count input
-                for role_key, role_data in st.session_state.roles_config.items():
-                    role_cols = st.columns([3, 1])
-                    with role_cols[0]:
-                        st.write(f"{role_data['name']}")
+
+                # Display each role with a staff count input, using "Role 1", "Role 2", etc.
+                for i, (role_key, role_data) in enumerate(st.session_state.roles_config.items(), 1):
+                    # Display role number and staff input on the same line without columns
+                    st.write(f"Role {i}")
                     
-                    with role_cols[1]:
-                        # Get existing staff count for this role in this shift
-                        role_staff = shift_data.get('role_staff', {}).get(role_key, 1)
-                        
-                        # Staff count input
-                        staff_count = st.number_input(
-                            "",  # Empty label since we're using the header row
-                            min_value=0,
-                            max_value=10,
-                            value=role_staff,
-                            key=f'{shift_key}_{role_key}_staff',
-                            step=1
-                        )
-                        
-                        # Store the staff count for this role
-                        if 'role_staff' not in shift_data:
-                            shift_data['role_staff'] = {}
-                        
-                        shift_data['role_staff'][role_key] = staff_count
+                    # Get existing staff count for this role in this shift
+                    role_staff = shift_data.get('role_staff', {}).get(role_key, 1)
+                    
+                    # Staff count input
+                    staff_count = st.number_input(
+                        "Staff",
+                        min_value=0,
+                        max_value=10,
+                        value=role_staff,
+                        key=f'{shift_key}_{role_key}_staff',
+                        step=1
+                    )
+                    
+                    # Store the staff count for this role
+                    if 'role_staff' not in shift_data:
+                        shift_data['role_staff'] = {}
+                    
+                    shift_data['role_staff'][role_key] = staff_count
                 
                 # Validate times
                 is_valid = validate_shift_times(start, end, shift_key)
