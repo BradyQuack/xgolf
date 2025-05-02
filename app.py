@@ -247,38 +247,16 @@ def configure_shifts():
                 with header_cols[1]:
                     st.write("**Staff**")
                 
-                # Display each role with a staff count input - with improved alignment
+                # Display each role with a staff count input
                 for role_key, role_data in st.session_state.roles_config.items():
-                    # Get existing staff count for this role in this shift
-                    role_staff = shift_data.get('role_staff', {}).get(role_key, 1)
-                    
-                    # Create a container for this role row with custom CSS
-                    st.markdown(
-                        """
-                        <style>
-                        .role-row {
-                            display: flex;
-                            align-items: center;
-                            margin-bottom: 0;
-                        }
-                        .role-name {
-                            flex: 3;
-                            padding-top: 10px;
-                        }
-                        .role-staff {
-                            flex: 3;
-                        }
-                        </style>
-                        """, 
-                        unsafe_allow_html=True
-                    )
-                    
                     role_cols = st.columns([3, 1])
                     with role_cols[0]:
-                        # Use markdown with custom class
-                        st.markdown(f'<div class="role-name">{role_data["name"]}</div>', unsafe_allow_html=True)
+                        st.write(f"{role_data['name']}")
                     
                     with role_cols[1]:
+                        # Get existing staff count for this role in this shift
+                        role_staff = shift_data.get('role_staff', {}).get(role_key, 1)
+                        
                         # Staff count input
                         staff_count = st.number_input(
                             "",  # Empty label since we're using the header row
