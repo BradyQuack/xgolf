@@ -263,6 +263,7 @@ def configure_shifts():
                         shift_data['role_staff'] = {}
                     
                     shift_data['role_staff'][role_key] = staff_count
+                    #
                 
                 # Validate times
                 is_valid = validate_shift_times(start, end, shift_key)
