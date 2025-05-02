@@ -249,7 +249,7 @@ def configure_shifts():
                         
                     # Staff count input (without a separate label)
                     staff_count = st.number_input(
-                        "Staff",  # Empty label since we're using the label in the column
+                        "Staff Count",  # Empty label since we're using the label in the column
                         min_value=0,
                         max_value=10,
                         value=role_staff,
