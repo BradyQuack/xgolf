@@ -880,8 +880,9 @@ def get_pdf_download_link():
 
 def plot_employee_shift_type_count(df):
     """
-    Generate a vertical heatmap showing the top employees who worked each shift type the most.
-    Displays with days on y-axis and shift types on x-axis.
+    Generate a heatmap showing the top employees who worked each shift type the most.
+    Counts each employee only once per day/shift combination, regardless of transaction count.
+    Displays with shift types on y-axis and days on x-axis.
     """
     try:
         # Ensure proper weekday ordering
@@ -905,15 +906,16 @@ def plot_employee_shift_type_count(df):
             key="shift_type_count_slider"
         )
         
-        # VERTICAL LAYOUT: Create a DataFrame with days on y-axis and shift types on x-axis
-        heatmap_data = pd.DataFrame(index=weekday_order, columns=shift_types)
+        # Create a DataFrame with the proper structure for our heatmap - ROTATED AXES
+        # Now shift types are on y-axis and days are on x-axis
+        heatmap_data = pd.DataFrame(index=shift_types, columns=weekday_order)
         
-        # Create a numeric data matrix for the heatmap colors
-        numeric_data = np.zeros((len(weekday_order), len(shift_types)))
+        # Create a numeric data matrix for the heatmap colors - ROTATED AXES
+        numeric_data = np.zeros((len(shift_types), len(weekday_order)))
         
         # For each day and shift combination, find the unique employees and their shift counts
-        for i, day in enumerate(weekday_order):
-            for j, shift in enumerate(shift_types):
+        for i, shift in enumerate(shift_types):
+            for j, day in enumerate(weekday_order):
                 # Get unique employees for this specific day and shift
                 day_shift_data = df[(df['weekday'] == day) & (df['shift_type'] == shift)]
                 
@@ -931,14 +933,14 @@ def plot_employee_shift_type_count(df):
                     if count > 0:  # Only show employees who worked shifts
                         cell_content += f"{emp} : {count}\n"
                 
-                # Store in the heatmap DataFrame
-                heatmap_data.at[day, shift] = cell_content.strip() if cell_content else "0"
+                # Store in the heatmap DataFrame - ROTATED AXES
+                heatmap_data.at[shift, day] = cell_content.strip() if cell_content else "0"
                 
                 # Store the number of unique employees who worked this day/shift for the heat coloring
                 numeric_data[i, j] = len(day_shift_data['employee'].unique())
         
-        # Create figure and axes - adjust figure size for vertical layout
-        fig, ax = plt.subplots(figsize=(8, 16))  # Taller figure for vertical layout
+        # Create figure and axes
+        fig, ax = plt.subplots(figsize=(16, 6))  # Adjusted figsize for rotated orientation
         
         # Create the heatmap with numeric data for colors
         hm = sns.heatmap(
@@ -950,10 +952,10 @@ def plot_employee_shift_type_count(df):
             ax=ax
         )
         
-        # Overlay text annotations manually
-        for i, day in enumerate(weekday_order):
-            for j, shift in enumerate(shift_types):
-                text = heatmap_data.at[day, shift]
+        # Overlay text annotations manually - ROTATED AXES
+        for i, shift in enumerate(shift_types):
+            for j, day in enumerate(weekday_order):
+                text = heatmap_data.at[shift, day]
                 ax.text(
                     j + 0.5,  # Center of the cell horizontally
                     i + 0.5,  # Center of the cell vertically
@@ -964,15 +966,15 @@ def plot_employee_shift_type_count(df):
                     fontweight='normal'
                 )
         
-        # Configure plot appearance
+        # Configure plot appearance - ROTATED AXES
         ax.set_title(f'Top {num_employees} Employees by Shift Count', 
                     fontsize=18, fontweight='bold', pad=20)
         ax.set_xlabel('')
         ax.set_ylabel('')
         
-        # Set tick labels - adjust rotation for vertical layout
-        ax.set_xticklabels(shift_types, rotation=0, fontsize=14, fontweight='bold')
-        ax.set_yticklabels(weekday_order, rotation=0, fontsize=12, fontweight='bold')
+        # Set tick labels - ROTATED AXES
+        ax.set_xticklabels(weekday_order, rotation=0, fontsize=12, fontweight='bold')
+        ax.set_yticklabels(shift_types, rotation=0, fontsize=12, fontweight='bold')
         
         plt.tight_layout()
         
