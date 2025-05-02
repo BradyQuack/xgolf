@@ -1605,7 +1605,7 @@ try:
                 tick.label1.set_fontweight('bold')
             
             # Format x-axis with dollar signs
-            ax3.xaxis.set_major_formatter('${x:,.0f}', fontsize=14)
+            ax3.xaxis.set_major_formatter('${x:,.0f}')
             
             # Calculate maximum value for setting axis limits
             max_value = top_employees.max()
