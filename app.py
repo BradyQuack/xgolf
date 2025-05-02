@@ -1061,6 +1061,7 @@ def generate_shift_analysis_rotated(df):
                 # Choose white text for darker cells, black text for lighter cells
                 # Threshold of 0.5 can be adjusted based on your colormap
                 text_color = "white" if color_intensity > 0.5 else "black"
+                #
                 
                 ax.text(
                     j + 0.5, 
