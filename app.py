@@ -974,7 +974,7 @@ def plot_employee_shift_type_count(df):
         
         # Set tick labels - ROTATED AXES
         ax.set_xticklabels(weekday_order, rotation=0, fontsize=14, fontweight='bold')
-        ax.set_yticklabels(shift_types, rotation=0, fontsize=14, fontweight='bold')
+        ax.set_yticklabels(shift_types, rotation=90, fontsize=14, fontweight='bold')
 
         # REMOVE SCALE TICKS
         ax.tick_params(axis='both', which='both', length=0)
@@ -1042,7 +1042,7 @@ def generate_shift_analysis_rotated(df):
             cmap='Greens',
             linewidths=0.5,
             linecolor='gray',
-            cbar_kws={'label': 'Gross Sales ($)'},
+            cbar=False,
             ax=ax,
             annot=False  # Don't let seaborn handle annotations
         )
@@ -1515,7 +1515,7 @@ try:
                 fmt='',
                 annot=np.array([["${:,.0f}".format(val) for val in row] for row in heatmap_data.values]),
                 annot_kws={"size": 8},
-                cbar_kws={'label': 'Gross Sales ($)'},
+                cbar=False,
                 ax=ax1
             )
             ax1.set_xlabel('Hour of Day', fontsize=14, fontweight='bold')
