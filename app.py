@@ -244,13 +244,12 @@ def configure_shifts():
                 for i, (role_key, role_data) in enumerate(st.session_state.roles_config.items(), 1):
                     # Display role number and role name on the same line
                     st.write(f"Role {i} - *{role_data['name']}*")
-                    st.write("Staff")
                     
                     role_staff = shift_data.get('role_staff', {}).get(role_key, 1)
                         
                     # Staff count input (without a separate label)
                     staff_count = st.number_input(
-                        "",  # Empty label since we're using the label in the column
+                        "Staff",  # Empty label since we're using the label in the column
                         min_value=0,
                         max_value=10,
                         value=role_staff,
