@@ -1878,11 +1878,7 @@ try:
           1. Total sales  
           2. Average transaction value  
           3. Shifts worked  
-          4. Sales per shift  
-        - **Scoring:** 4-3-2-1 weighted ranking  
-        - **Color Coding:** Darker greens = higher efficiency  
-        
-        *Pro Tip: Top 3 scorers get priority for premium shifts*  
+          4. Sales per shift   
         """)
 
             else:
@@ -1906,10 +1902,6 @@ try:
           2. Average transaction value  
           3. Shifts worked  
           4. Sales per shift  
-        - **Scoring:** 4-3-2-1 weighted ranking  
-        - **Color Coding:** Darker greens = higher efficiency  
-        
-        *Pro Tip: Top 3 scorers get priority for premium shifts*  
         """)
 
             else:
