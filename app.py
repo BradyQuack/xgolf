@@ -1042,7 +1042,7 @@ def generate_shift_analysis_rotated(df):
             cmap='Greens',
             linewidths=0.5,
             linecolor='gray',
-            cbar_kws={'label': 'Gross Sales ($)'},
+            cbar=False,
             ax=ax,
             annot=False  # Don't let seaborn handle annotations
         )
@@ -1534,7 +1534,7 @@ try:
                 linecolor='gray',
                 fmt='',
                 annot=np.array([["${:,.0f}".format(val) for val in row] for row in heatmap_data.values]),
-                annot_kws={"size": 14},
+                annot_kws={"size": 10},
                 cbar=False,
                 ax=ax1
             )
