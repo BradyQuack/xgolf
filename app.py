@@ -948,7 +948,7 @@ def plot_employee_shift_type_count(df):
             cmap=['white'],
             linewidths=0.5,
             linecolor='gray',
-            cbar_kws={'label': 'Unique Employees'},
+            cbar=False,
             ax=ax
         )
         
@@ -975,6 +975,9 @@ def plot_employee_shift_type_count(df):
         # Set tick labels - ROTATED AXES
         ax.set_xticklabels(weekday_order, rotation=0, fontsize=12, fontweight='bold')
         ax.set_yticklabels(shift_types, rotation=0, fontsize=12, fontweight='bold')
+
+        # REMOVE SCALE TICKS
+        ax.tick_params(axis='both', which='both', length=0)
         
         plt.tight_layout()
         
