@@ -319,7 +319,7 @@ def configure_shifts():
                     st.session_state.shift_config[f'Shift {next_num}'] = {
                         'name': new_shift_name,
                         'start': 0,
-                        'end': 8,
+                        'end': 14,
                         'staff': 2,  # Default staff count
                         'role_staff': role_staff  # Add role-specific staff counts
                     }
@@ -665,8 +665,8 @@ def plot_weekly_schedule_with_availability(df, availability):
             ax=ax
         )
         
-        ax.set_xticklabels(shift_columns, rotation=0, fontsize=16, fontweight='bold')
-        ax.set_yticklabels(display_schedule.index, rotation=0, fontsize=16, fontweight='bold')
+        ax.set_xticklabels(shift_columns, rotation=0, fontsize=14, fontweight='bold')
+        ax.set_yticklabels(display_schedule.index, rotation=0, fontsize=14, fontweight='bold')
         ax.xaxis.tick_top()
         ax.xaxis.set_label_position('top')
         ax.set_title('AI Optimized Labor Schedule (Role & Shift Efficiency)', pad=24, fontsize=22, fontweight='bold')
@@ -962,7 +962,7 @@ def plot_employee_shift_type_count(df):
                     text,
                     ha='center',
                     va='center',
-                    fontsize=14,
+                    fontsize=13,
                     fontweight='normal'
                 )
         
@@ -1042,17 +1042,36 @@ def generate_shift_analysis_rotated(df):
             cmap='Greens',
             linewidths=0.5,
             linecolor='gray',
-            cbar=False,
+            cbar_kws={'label': 'Gross Sales ($)'},
             ax=ax,
             annot=False  # Don't let seaborn handle annotations
         )
         
-        # Manually add the dollar annotations
+        # Get the colormap values for determining text color
+        norm = plt.Normalize(shift_summary_rotated.values.min(), shift_summary_rotated.values.max())
+        
+        # Manually add the dollar annotations with adaptive text color
         for i in range(shift_summary_rotated.shape[0]):
             for j in range(shift_summary_rotated.shape[1]):
                 value = shift_summary_rotated.iloc[i, j]
-                ax.text(j + 0.5, i + 0.5, f"${value:,.0f}", 
-                        ha="center", va="center", fontsize=14, fontweight='bold')
+                
+                # Calculate color intensity (0-1 scale)
+                color_intensity = norm(value)
+                
+                # Choose white text for darker cells, black text for lighter cells
+                # Threshold of 0.5 can be adjusted based on your colormap
+                text_color = "white" if color_intensity > 0.5 else "black"
+                
+                ax.text(
+                    j + 0.5, 
+                    i + 0.5, 
+                    f"${value:,.0f}", 
+                    ha="center", 
+                    va="center", 
+                    fontsize=14, 
+                    fontweight='bold',
+                    color=text_color  # Apply adaptive text color
+                )
         
         # Configure plot appearance
         ax.set_title('Sales by Shift and Weekday', fontsize=22, fontweight='bold', pad=20)
@@ -1514,7 +1533,7 @@ try:
                 linecolor='gray',
                 fmt='',
                 annot=np.array([["${:,.0f}".format(val) for val in row] for row in heatmap_data.values]),
-                annot_kws={"size": 8},
+                annot_kws={"size": 14},
                 cbar=False,
                 ax=ax1
             )
