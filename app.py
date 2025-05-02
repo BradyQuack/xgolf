@@ -1081,7 +1081,7 @@ def generate_shift_analysis_rotated(df):
         
         # Set tick labels
         ax.set_xticklabels(weekday_order, rotation=0, fontsize=14, fontweight='bold')
-        ax.set_yticklabels(shift_types, rotation=90, fontsize=14)
+        ax.set_yticklabels(shift_types, rotation=90, fontsize=14, fontweight='bold')
         
         plt.tight_layout()
         
