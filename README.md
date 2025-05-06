@@ -1,5 +1,8 @@
 # AI Shift Optimizer
 
+# Current Deployment
+Code is currently being deployed as a web app using streamlit. Please advise if a demonstation is required and I will fire up the instance. 
+
 ## Overview
 AI Shift Optimizer is a Streamlit application designed to help businesses optimize their employee scheduling by analyzing historical sales data, employee performance, and availability to create data-driven shift schedules. The application uses machine learning techniques to identify the most efficient staff assignments while balancing workload and maximizing revenue potential.
 
