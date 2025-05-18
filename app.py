@@ -708,7 +708,7 @@ def plot_weekly_schedule_with_availability(df, availability):
         ax.set_yticklabels(display_schedule.index, rotation=0, fontsize=14, fontweight='bold')
         ax.xaxis.tick_top()
         ax.xaxis.set_label_position('top')
-        ax.set_title('AI Optimized Labor Schedule (Role & Shift Efficiency)', pad=24, fontsize=22, fontweight='bold')
+        ax.set_title('Optimized Labor Schedule', pad=24, fontsize=22, fontweight='bold')
         plt.tight_layout()
         
         # Save figure for PDF export
@@ -1172,17 +1172,8 @@ def plot_simplified_employee_morning_score(df):
         # Sort the scores for visualization
         total_score = total_score.sort_values(ascending=False)
         
-        # Add slider to control number of employees displayed
-        num_top_employees = st.slider(
-            "Number of employees to display",
-            min_value=1,
-            max_value=len(total_score),
-            value=min(10, len(total_score)),
-            key="morning_efficiency_slider"
-        )
-        
         # Filter to top N employees based on slider
-        top_scores = total_score.head(num_top_employees)
+        top_scores = total_score
         
         # Create horizontal bar chart for total scores only
         fig, ax = plt.subplots(figsize=(16, 10))
@@ -1209,9 +1200,9 @@ def plot_simplified_employee_morning_score(df):
             )
         
         # Configure chart appearance
-        ax.set_title(f'Top {num_top_employees} Employee Efficiency - {morning_shift}', 
+        ax.set_title(f'Individual Impact Score - {morning_shift}', 
                      fontsize=22, fontweight='bold')
-        ax.set_xlabel('Efficiency Score', fontsize=14, fontweight='bold')
+        ax.set_xlabel('Impact Score', fontsize=14, fontweight='bold')
         ax.set_ylabel('')
         
         # Set axis limits to provide some padding
@@ -1278,17 +1269,8 @@ def plot_simplified_employee_evening_score(df):
         # Sort the scores for visualization
         total_score = total_score.sort_values(ascending=False)
         
-        # Add slider to control number of employees displayed
-        num_top_employees = st.slider(
-            "Number of employees to display",
-            min_value=1,
-            max_value=len(total_score),
-            value=min(10, len(total_score)),
-            key="evening_efficiency_slider"
-        )
-        
         # Filter to top N employees based on slider
-        top_scores = total_score.head(num_top_employees)
+        top_scores = total_score
         
         # Create horizontal bar chart for total scores only
         fig, ax = plt.subplots(figsize=(16, 10))
@@ -1315,9 +1297,9 @@ def plot_simplified_employee_evening_score(df):
             )
         
         # Configure chart appearance
-        ax.set_title(f'Top {num_top_employees} Employee Efficiency - {evening_shift}', 
+        ax.set_title(f'Individual Impact Score - {evening_shift}', 
                      fontsize=22, fontweight='bold')
-        ax.set_xlabel('Efficiency Score', fontsize=14, fontweight='bold')
+        ax.set_xlabel('Impact Score', fontsize=14, fontweight='bold')
         ax.set_ylabel('')
         
         # Set axis limits to provide some padding
@@ -1369,17 +1351,8 @@ def plot_avg_sales_per_shift(df):
         avg_sales_per_shift = total_sales / shifts_worked
         avg_sales_per_shift = avg_sales_per_shift.sort_values(ascending=False)
         
-        # Add slider to control number of employees displayed
-        num_employees = st.slider(
-            "Number of employees to display",
-            min_value=1,
-            max_value=len(avg_sales_per_shift),
-            value=min(10, len(avg_sales_per_shift)),
-            key="avg_sales_per_shift_slider"
-        )
-        
         # Filter to top N employees based on slider
-        top_employees = avg_sales_per_shift.head(num_employees)
+        top_employees = avg_sales_per_shift
         
         # Create horizontal bar chart
         fig, ax = plt.subplots(figsize=(16, 8))
@@ -1403,9 +1376,9 @@ def plot_avg_sales_per_shift(df):
             ax.text(v + (max_value * 0.02), i, f"${v:,.0f}", va='center', fontweight='bold')
         
         # Configure chart appearance
-        ax.set_xlabel('Average Sales per Shift ($)', fontsize=14, fontweight='bold')
+        ax.set_xlabel('($)', fontsize=14, fontweight='bold')
         ax.set_ylabel('')
-        ax.set_title('Average Sales per Shift by Employee', fontsize=22, fontweight='bold')
+        ax.set_title('Average Individual Sales per Shift', fontsize=22, fontweight='bold')
         ax.tick_params(axis='y', labelsize=16)
         for tick in ax.yaxis.get_major_ticks():
             tick.label1.set_fontweight('bold')
@@ -1430,8 +1403,10 @@ def plot_avg_sales_per_shift(df):
 
 # Main app
 try:
-    st.title("📈 AI Shift Optimization Dashboard")
-    uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
+    st.title("📈 Shift Optimization Dashboard")
+    uploaded_file = st.file_uploader("**DOCUMENT UPLOAD**", type=["csv"])
+
+    st.markdown("""**INSTRUCTIONS**""")
 
     # Create two columns
     col1, col2 = st.columns([1, 1], gap="large")
@@ -1550,9 +1525,24 @@ try:
         configure_shifts()     
 
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        
+        st.markdown("""**SCHEDULE**""")
+
+        # === AI OPTIMIZED SCHEDULE (COLLAPSIBLE) ===
+        with st.expander("📅 Optimized Labor Schedule", expanded=True):
+            # Get employee availability
+            availability = get_employee_availability(df)
+            
+            # Generate and display schedule
+            schedule_fig = plot_weekly_schedule_with_availability(df, availability)
+            st.pyplot(schedule_fig)
+
+        #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+        st.markdown("""**VISUALIZATIONS**""")
 
         # === VISUALIZATION 1: WEEKDAY VS HOUR HEATMAP (COLLAPSIBLE) ===
-        with st.expander("📊 Sales Heatmap by Weekday/Hour", expanded=False):
+        with st.expander("📊 Revenue Patterns", expanded=False):
             # Ensure proper weekday ordering
             weekday_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
             df['weekday'] = pd.Categorical(df['weekday'], categories=weekday_order, ordered=True)
@@ -1579,7 +1569,7 @@ try:
             )
             ax1.set_xlabel('Hour of Day', fontsize=14, fontweight='bold')
             ax1.set_ylabel('')
-            ax1.set_title('Sales by Weekday and Hour', fontsize=22, fontweight='bold')
+            ax1.set_title('Revenue Patterns', fontsize=22, fontweight='bold')
             st.pyplot(fig1)
 
             st.markdown("""
@@ -1595,7 +1585,7 @@ try:
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
         # === VISUALIZATION 2: SHIFT efficiency ANALYSIS (COLLAPSIBLE) ===
-        with st.expander("📊 Sales Heatmap by Shift", expanded=False):
+        with st.expander("📊 Team Performance by Shift", expanded=False):
             # st.markdown("### Original Layout")
             shift_summary = generate_shift_analysis(df)
             rotated_shift_fig = generate_shift_analysis_rotated(df)
@@ -1614,20 +1604,11 @@ try:
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
         # === VISUALIZATION 3: TOTAL SALES BY EMPLOYEE (COLLAPSIBLE) ===
-        with st.expander("💰 Total Sales by Employee", expanded=False):
+        with st.expander("💰 Total Individual Sales", expanded=False):
             employee_sales = df.groupby('employee')['gross_sales'].sum().sort_values(ascending=False)
             
-            # Add slider to control number of employees displayed
-            num_employees = st.slider(
-                "Number of employees to display",
-                min_value=1,
-                max_value=len(employee_sales),
-                value=min(10, len(employee_sales)),
-                key="total_sales_slider"
-            )
-            
             # Filter to top N employees based on slider
-            top_employees = employee_sales.head(num_employees)
+            top_employees = employee_sales
             
             fig3, ax3 = plt.subplots(figsize=(16, 8))
             top_employees.sort_values().plot(
@@ -1636,9 +1617,9 @@ try:
                 edgecolor='black',
                 ax=ax3
             )
-            ax3.set_xlabel('Gross Sales ($)', fontsize=14, fontweight='bold')
+            ax3.set_xlabel('($)', fontsize=14, fontweight='bold')
             ax3.set_ylabel('')
-            ax3.set_title(f'Total Sales by Top {num_employees} Employees', fontsize=22, fontweight='bold')
+            ax3.set_title(f'Total Individual Sales', fontsize=22, fontweight='bold')
             ax3.tick_params(axis='y', labelsize=16)
             for tick in ax3.yaxis.get_major_ticks():
                 tick.label1.set_fontweight('bold')
@@ -1669,7 +1650,7 @@ try:
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
         # === VISUALIZATION 4: AVERAGE SALE PER Shift (COLLAPSIBLE) ===
-        with st.expander("💰 Average Sales per Shift by Employee", expanded=False):
+        with st.expander("💰 Average Individual Sales per Shift", expanded=False):
             avg_sales_per_shift_fig = plot_avg_sales_per_shift(df)
             st.pyplot(avg_sales_per_shift_fig) 
 
@@ -1686,7 +1667,7 @@ try:
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
         # === VISUALIZATION 5: AVERAGE SALE PER TRANSACTION (COLLAPSIBLE) ===
-        with st.expander("💰 Average Sale per Transaction by Employee", expanded=False):
+        with st.expander("💰 Average Individual Transaction", expanded=False):
             # Calculate average sale per transaction for each employee
             avg_sales = df.groupby('employee').agg({
                 'gross_sales': 'sum',
@@ -1695,17 +1676,8 @@ try:
             avg_sales['avg_sale'] = avg_sales['gross_sales'] / avg_sales['date']
             avg_sales = avg_sales.sort_values('avg_sale', ascending=False)
             
-            # Add slider to control number of employees displayed
-            num_avg_employees = st.slider(
-                "Number of employees to display",
-                min_value=1,
-                max_value=len(avg_sales),
-                value=min(10, len(avg_sales)),
-                key="avg_sales_slider"
-            )
-            
             # Filter to top N employees based on slider
-            top_avg_employees = avg_sales['avg_sale'].head(num_avg_employees)
+            top_avg_employees = avg_sales['avg_sale']
             
             fig4, ax4 = plt.subplots(figsize=(16, 8))
             top_avg_employees.sort_values().plot(
@@ -1714,9 +1686,9 @@ try:
                 edgecolor='black',
                 ax=ax4
             )
-            ax4.set_xlabel('Average Sale ($)', fontsize=14, fontweight='bold')
+            ax4.set_xlabel('($)', fontsize=14, fontweight='bold')
             ax4.set_ylabel('')
-            ax4.set_title(f'Average Sale per Transaction - Top {num_avg_employees} Employees', fontsize=22, fontweight='bold')
+            ax4.set_title(f'Average Individual Transaction', fontsize=22, fontweight='bold')
             
             # Format x-axis with dollar signs
             ax4.xaxis.set_major_formatter('${x:,.0f}')
@@ -1753,24 +1725,16 @@ try:
 
         # === VISUALIZATION 6: TOTAL SALES BY EMPLOYEE - MORNING SHIFT (COLLAPSIBLE) ===
         morning_shift = st.session_state.shift_config['Shift 1']['name']
-        with st.expander(f"👥 Total Sales by Employee - {morning_shift}", expanded=False):
+        with st.expander(f"👥 Total Individual Sales - {morning_shift}", expanded=False):
             # Filter for Morning Shift
             try:
                 morning_sales = employee_shift_stats.loc[(slice(None), morning_shift), 'gross_sales']
                 morning_sales = morning_sales.reset_index().set_index('employee')['gross_sales'].sort_values(ascending=False)
                 
                 if not morning_sales.empty:
-                    # Add slider to control number of employees displayed
-                    num_morning_employees = st.slider(
-                        "Number of employees to display",
-                        min_value=1,
-                        max_value=len(morning_sales),
-                        value=min(10, len(morning_sales)),
-                        key="morning_shift_slider"
-                    )
                     
                     # Filter to top N employees based on slider
-                    top_morning_employees = morning_sales.sort_values(ascending=False).head(num_morning_employees)
+                    top_morning_employees = morning_sales.sort_values(ascending=False)
                     
                     fig5, ax5 = plt.subplots(figsize=(16, 8))
                     top_morning_employees.sort_values().plot(
@@ -1779,9 +1743,9 @@ try:
                         edgecolor='black',
                         ax=ax5
                     )
-                    ax5.set_xlabel('Gross Sales ($)', fontsize=14, fontweight='bold')
+                    ax5.set_xlabel('($)', fontsize=14, fontweight='bold')
                     ax5.set_ylabel('')
-                    ax5.set_title(f'Total Sales by Top {num_morning_employees} Employees - {morning_shift}', fontsize=22, fontweight='bold')
+                    ax5.set_title(f'Total Individual Sales - {morning_shift}', fontsize=22, fontweight='bold')
                     
                     # Format x-axis with dollar signs
                     ax5.xaxis.set_major_formatter('${x:,.0f}')
@@ -1820,24 +1784,16 @@ try:
 
         # === VISUALIZATION 7: TOTAL SALES BY EMPLOYEE - EVENING SHIFT (COLLAPSIBLE) ===
         evening_shift = st.session_state.shift_config['Shift 2']['name']
-        with st.expander(f"👥 Total Sales by Employee - {evening_shift}", expanded=False):
+        with st.expander(f"👥 Total Individual Sales - {evening_shift}", expanded=False):
             # Filter for Evening Shift
             try:
                 evening_sales = employee_shift_stats.loc[(slice(None), evening_shift), 'gross_sales']
                 evening_sales = evening_sales.reset_index().set_index('employee')['gross_sales'].sort_values(ascending=False)
                 
                 if not evening_sales.empty:
-                    # Add slider to control number of employees displayed
-                    num_evening_employees = st.slider(
-                        "Number of employees to display",
-                        min_value=1,
-                        max_value=len(evening_sales),
-                        value=min(10, len(evening_sales)),
-                        key="evening_shift_slider"
-                    )
                     
                     # Filter to top N employees based on slider
-                    top_evening_employees = evening_sales.head(num_evening_employees)
+                    top_evening_employees = evening_sales
                     
                     fig6, ax6 = plt.subplots(figsize=(16, 8))
                     top_evening_employees.sort_values().plot(
@@ -1846,9 +1802,9 @@ try:
                         edgecolor='black',
                         ax=ax6
                     )
-                    ax6.set_xlabel('Gross Sales ($)', fontsize=14, fontweight='bold')
+                    ax6.set_xlabel('($)', fontsize=14, fontweight='bold')
                     ax6.set_ylabel('')
-                    ax6.set_title(f'Total Sales by Top {num_evening_employees} Employees - {evening_shift}', fontsize=22, fontweight='bold')
+                    ax6.set_title(f'Total Individual Sales - {evening_shift}', fontsize=22, fontweight='bold')
 
                     ax6.tick_params(axis='y', labelsize=16)
                     for tick in ax6.yaxis.get_major_ticks():
@@ -1905,7 +1861,7 @@ try:
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
         # === VISUALIZATION 9: Employee 1st Shift Efficiency - Ranked ===
-        with st.expander("🏆 Employee 1st Shift Efficiency - Ranked", expanded=False):
+        with st.expander("🏆 1st Shift Impact Score", expanded=False):
             morning_shift = st.session_state.shift_config['Shift 1']['name']
             morning_score_fig = plot_simplified_employee_morning_score(df)
             if morning_score_fig:
@@ -1928,7 +1884,7 @@ try:
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
         # === VISUALIZATION 10: Employee 2nd Shift Efficiency - Ranked ===
-        with st.expander("🏆 Employee 2nd Shift Efficiency - Ranked", expanded=False):
+        with st.expander("🏆 2nd Shift Impact Score", expanded=False):
             evening_shift = st.session_state.shift_config['Shift 2']['name']
             evening_score_fig = plot_simplified_employee_evening_score(df)
             if evening_score_fig:
@@ -1947,90 +1903,84 @@ try:
                 st.info("No evening shift data available for scoring")
 
         #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-        # === AI OPTIMIZED SCHEDULE (COLLAPSIBLE) ===
-        with st.expander("🤖 AI Optimized Labor Schedule", expanded=True):
-            # Get employee availability
-            availability = get_employee_availability(df)
-            
-            # Generate and display schedule
-            schedule_fig = plot_weekly_schedule_with_availability(df, availability)
-            st.pyplot(schedule_fig)
         
-        # Export options after schedule is generated
-        st.subheader("📤 Export Options")
-        export_col1, export_col2, export_col3 = st.columns(3)
+        # # Export options after schedule is generated
+        # st.subheader("📤 Export Options")
+        # export_col1, export_col2, export_col3 = st.columns(3)
         
-        with export_col1:
-            csv_link = get_csv_download_link()
-            if csv_link:
-                if st.download_button(
-                    label="📄 Download CSV",
-                    data=st.session_state.schedule_df.to_csv().encode('utf-8'),
-                    file_name="x_golf_schedule.csv",
-                    mime="text/csv",
-                    key="download-csv"
-                ):
-                    st.success("CSV file downloaded successfully!")
-            else:
-                st.button("📄 Download CSV", disabled=True, help="Generate schedule first")
+        # with export_col1:
+        #     csv_link = get_csv_download_link()
+        #     if csv_link:
+        #         if st.download_button(
+        #             label="📄 Download CSV",
+        #             data=st.session_state.schedule_df.to_csv().encode('utf-8'),
+        #             file_name="x_golf_schedule.csv",
+        #             mime="text/csv",
+        #             key="download-csv"
+        #         ):
+        #             st.success("CSV file downloaded successfully!")
+        #     else:
+        #         st.button("📄 Download CSV", disabled=True, help="Generate schedule first")
         
-        with export_col2:
-            excel_link = get_excel_download_link()
-            if excel_link:
-                # For Excel, we need to create the file in memory
-                buffer = io.BytesIO()
-                with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-                    st.session_state.schedule_df.to_excel(writer, sheet_name='Schedule')
+        # with export_col2:
+        #     excel_link = get_excel_download_link()
+        #     if excel_link:
+        #         # For Excel, we need to create the file in memory
+        #         buffer = io.BytesIO()
+        #         with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        #             st.session_state.schedule_df.to_excel(writer, sheet_name='Schedule')
                     
-                    # Format Excel
-                    workbook = writer.book
-                    worksheet = writer.sheets['Schedule']
-                    header_format = workbook.add_format({
-                        'bold': True,
-                        'text_wrap': True,
-                        'valign': 'top',
-                        'fg_color': '#D7E4BC',
-                        'border': 1
-                    })
+        #             # Format Excel
+        #             workbook = writer.book
+        #             worksheet = writer.sheets['Schedule']
+        #             header_format = workbook.add_format({
+        #                 'bold': True,
+        #                 'text_wrap': True,
+        #                 'valign': 'top',
+        #                 'fg_color': '#D7E4BC',
+        #                 'border': 1
+        #             })
                     
-                    for col_num, value in enumerate(st.session_state.schedule_df.columns.values):
-                        worksheet.write(0, col_num + 1, value, header_format)
+        #             for col_num, value in enumerate(st.session_state.schedule_df.columns.values):
+        #                 worksheet.write(0, col_num + 1, value, header_format)
                 
-                buffer.seek(0)
+        #         buffer.seek(0)
                 
-                if st.download_button(
-                    label="📊 Download Excel",
-                    data=buffer,
-                    file_name="x_golf_schedule.xlsx",
-                    mime="application/vnd.ms-excel",
-                    key="download-excel"
-                ):
-                    st.success("Excel file downloaded successfully!")
-            else:
-                st.button("📊 Download Excel", disabled=True, help="Generate schedule first")
+        #         if st.download_button(
+        #             label="📊 Download Excel",
+        #             data=buffer,
+        #             file_name="x_golf_schedule.xlsx",
+        #             mime="application/vnd.ms-excel",
+        #             key="download-excel"
+        #         ):
+        #             st.success("Excel file downloaded successfully!")
+        #     else:
+        #         st.button("📊 Download Excel", disabled=True, help="Generate schedule first")
             
-        with export_col3:
-            pdf_link = get_pdf_download_link()
-            if pdf_link:
-                # For PDF, we need to create the file in memory
-                buffer = io.BytesIO()
-                with PdfPages(buffer) as pdf:
-                    pdf.savefig(st.session_state.schedule_fig)
+        # with export_col3:
+        #     pdf_link = get_pdf_download_link()
+        #     if pdf_link:
+        #         # For PDF, we need to create the file in memory
+        #         buffer = io.BytesIO()
+        #         with PdfPages(buffer) as pdf:
+        #             pdf.savefig(st.session_state.schedule_fig)
                 
-                buffer.seek(0)
+        #         buffer.seek(0)
                 
-                if st.download_button(
-                    label="📑 Download PDF",
-                    data=buffer,
-                    file_name="x_golf_schedule.pdf",
-                    mime="application/pdf",
-                    key="download-pdf"
-                ):
-                    st.success("PDF file downloaded successfully!")
-            else:
-                st.button("📑 Download PDF", disabled=True, help="Generate schedule first")
+        #         if st.download_button(
+        #             label="📑 Download PDF",
+        #             data=buffer,
+        #             file_name="x_golf_schedule.pdf",
+        #             mime="application/pdf",
+        #             key="download-pdf"
+        #         ):
+        #             st.success("PDF file downloaded successfully!")
+        #     else:
+        #         st.button("📑 Download PDF", disabled=True, help="Generate schedule first")
                 
 except Exception as e:
     st.error(f"An unexpected error occurred: {str(e)}")
     st.error(traceback.format_exc())
+
+    # Benfits order
+    # Graphs
